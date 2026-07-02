@@ -54,7 +54,7 @@ export default function ConfigPage() {
     const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
 
     const items = [
-        { label: "配置文件存储路径", value: configPath },
+        { label: "当前配置文件", value: configPath },
         { label: "密钥默认填充符号", value: defaultChar },
     ];
 
@@ -157,7 +157,7 @@ export default function ConfigPage() {
                                     open={passwdFileDialogOpen} onOpenChange={setPasswdFileDialogOpen}>
                                     <DialogTrigger asChild>
                                         <div className="flex flex-col justify-between p-4 bg-card min-w-0 cursor-pointer hover:bg-accent/50 transition-colors">
-                                            <div className="font-medium">密码文件存储路径</div>
+                                            <div className="font-medium">当前密码文件</div>
                                             <div className="text-sm text-muted-foreground truncate">{passwdFilePath}</div>
                                         </div>
                                     </DialogTrigger>
@@ -223,7 +223,7 @@ export default function ConfigPage() {
                             <div className="overflow-hidden mt-6 flex rounded-xl border border-border bg-card">
                                 <button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
                                     onClick={() => setImportDialogOpen(true)}>
-                                    导入
+                                    包括
                                 </button>
                                 <button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
                                     onClick={async () => {
@@ -239,7 +239,7 @@ export default function ConfigPage() {
                                 {/* 外部切换按钮：选择外部文件 → 复制到内部 → 切换 */}
                                 <button className="w-full min-h-10 flex-1 hover:bg-accent/50"
                                     onClick={handleExternalSwitch}>
-                                    外部切换
+                                    导入文件
                                 </button>
                             </div>
 
@@ -290,10 +290,13 @@ export default function ConfigPage() {
                     style={{ transform: importDialogOffset ? `translateY(-${importDialogOffset}px)` : undefined }}
                 >
                     <DialogHeader>
-                        <DialogTitle>导入数据</DialogTitle>
+                        <DialogTitle>包括</DialogTitle>
+                        <span className="text-sm text-muted-foreground">
+                            将另外文件中的密码记忆等加入到当前文件
+                        </span>
                     </DialogHeader>
-                    <div className="space-y-4">
-                        <div>
+                    <div className="py-4">
+                        <div className="mb-2">
                             <div className="text-sm font-medium mb-1">文件路径</div>
                             <div className="flex gap-2">
                                 <input
@@ -308,7 +311,7 @@ export default function ConfigPage() {
                                 </Button>
                             </div>
                         </div>
-                        <div>
+                        <div className="mb-2">
                             <div className="text-sm font-medium mb-1">当前加密密钥</div>
                             <input
                                 ref={localSecretRef}
@@ -324,7 +327,7 @@ export default function ConfigPage() {
                             />
                         </div>
                         <div>
-                            <div className="text-sm font-medium mb-1">待导入文件加密密钥</div>
+                            <div className="text-sm font-medium mb-1">待包括文件加密密钥</div>
                             <input
                                 type="password"
                                 value={importSecret}

@@ -8,7 +8,7 @@ const handleChooseImportFile = async (): Promise<string | null> => {
         const selected = await open({
             multiple: false,
             directory: false,
-            title: "导入数据",
+            title: "导入文件",
             filters: [{ name: "toml", extensions: ["toml"] }]
         });
         if (!selected) return null;
@@ -43,7 +43,7 @@ const handleCheckOut = async (): Promise<string | null> => {
 const handleExport = async (): Promise<boolean> => {
     try {
         const savePath = await save({
-            title: "导出数据",
+            title: "导出文件",
             defaultPath: `passwd.toml`,
             filters: [{ name: "toml", extensions: ["toml"] }]
         });
