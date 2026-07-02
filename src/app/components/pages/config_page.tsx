@@ -147,9 +147,11 @@ export default function ConfigPage() {
                 <p className="text-muted-foreground mb-6">关于软件的行为与其他信息。</p>
                 <ScrollArea className="m-1">
                     <div className="flex justify-center">
-                        <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'} p-2.5`}>
+                        <div className={`${isAndroid ? "max-w-[calc(100vw-48px)]" : 'w-full'}`}>
 
-                            <div className={`rounded-xl border border-border divide-y divide-border min-w-0`}>
+                            <div className={`
+                                rounded-xl border border-border divide-y 
+                                divide-border min-w-0 overflow-hidden`}>
                                 {/* 密码文件路径 —— 内部文件选择器 */}
                                 <Dialog
                                     open={passwdFileDialogOpen} onOpenChange={setPasswdFileDialogOpen}>
@@ -218,7 +220,7 @@ export default function ConfigPage() {
                             </div>
 
                             {/* 底部按钮区 */}
-                            <div className="mt-6 flex rounded-xl border border-border bg-card">
+                            <div className="overflow-hidden mt-6 flex rounded-xl border border-border bg-card">
                                 <button className="w-full min-h-10 flex-1 hover:bg-accent/50 border-r-2"
                                     onClick={() => setImportDialogOpen(true)}>
                                     导入
@@ -241,7 +243,7 @@ export default function ConfigPage() {
                                 </button>
                             </div>
 
-                            <div className="mt-2 flex rounded-xl border border-border bg-card">
+                            <div className="overflow-hidden mt-2 flex rounded-xl border border-border bg-card">
                                 <button
                                     className="w-full min-h-10 flex-1 hover:bg-accent/50"
                                     onClick={() => setChangeKeyDialogOpen(true)}>
