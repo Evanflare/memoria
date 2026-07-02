@@ -44,7 +44,7 @@ const handleExport = async (): Promise<boolean> => {
     try {
         const savePath = await save({
             title: "导出数据",
-            defaultPath: `passwd-memoty-points_${Date.now()}.toml`,
+            defaultPath: `passwd.toml`,
             filters: [{ name: "toml", extensions: ["toml"] }]
         });
         if (!savePath) return false;
