@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { decyptPasswd, PasswdSummary } from "../../tauri_core/command_frontend";
 import { Eye, X, Lock } from "lucide-react";
 import { PasswdPageAction } from "../pages/dispacher/passwd_dispacher";
+import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
 
 export default function DecryptDialog({
     entry,
@@ -13,32 +14,17 @@ export default function DecryptDialog({
     dispacher: React.Dispatch<PasswdPageAction>
 }) {
     const [secretKey, setSecretKey] = useState("");
-    const [plaintext, setPlaintext] = useState<string | null>(
-        null,
-    );
+    const [plaintext, setPlaintext] = useState<string | null>(null);
     const [error, setError] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        inputRef.current?.focus();
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-        window.addEventListener("keydown", onKey);
-        return () => {
-            window.removeEventListener("keydown", onKey);
-            setPlaintext(null);
-            setSecretKey("");
-        };
-    }, [onClose]);
-
+    const { dialogOffset, ensureInputVisible } = useKeyboardAvoidance(inputRef);
 
     const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" || e === undefined) {
-            // 防止重复提交
+        if (e.key === "Enter") {
             decyted();
         }
     };
+
     const decyted = async () => {
         if (!secretKey.trim()) {
             setError(true);
@@ -48,7 +34,6 @@ export default function DecryptDialog({
         try {
             const decrypted = await decyptPasswd(entry.uid, secretKey);
             setPlaintext(decrypted);
-            // 如果需要同步到全局状态（比如用于复制或其他组件）
             dispacher({
                 type: 'decypt',
                 uid: entry.uid,
@@ -59,7 +44,7 @@ export default function DecryptDialog({
             setError(true);
             setPlaintext(null);
         }
-    }
+    };
 
     const handleClose = () => {
         setPlaintext(null);
@@ -69,12 +54,15 @@ export default function DecryptDialog({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-500 ease-out"
             onClick={(e) => {
                 if (e.target === e.currentTarget) handleClose();
             }}
         >
-            <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div
+                className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transition-transform duration-400 ease-out"
+                style={{ transform: dialogOffset ? `translateY(-${dialogOffset}px)` : undefined }}
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                     <div className="flex items-center gap-3">
@@ -96,8 +84,8 @@ export default function DecryptDialog({
                     </button>
                 </div>
 
-                {/* Body */}
-                <div className="px-6 py-5 flex flex-col gap-4">
+                {/* Body with scroll support */}
+                <div className="px-6 py-5 flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
                     {!plaintext ? (
                         <>
                             <div className="flex flex-col gap-1.5">
@@ -111,10 +99,12 @@ export default function DecryptDialog({
                                         setError(false);
                                     }}
                                     onKeyDown={handleKeyDown}
+                                    onFocus={ensureInputVisible}
+                                    onClick={ensureInputVisible}
+                                    onTouchStart={ensureInputVisible}
+                                    onPointerDown={ensureInputVisible}
                                     placeholder="按Enter确认"
-                                    className={`w-full px-3 py-2 rounded-lg bg-input-background text-foreground border text-sm outline-none transition-colors ${error
-                                        ? "border-destructive"
-                                        : "border-border focus:border-primary"
+                                    className={`w-full px-3 py-2 rounded-lg bg-input-background text-foreground border text-sm outline-none transition-colors ${error ? "border-destructive" : "border-border focus:border-primary"
                                         }`}
                                 />
                                 {error && (
@@ -122,12 +112,6 @@ export default function DecryptDialog({
                                         Incorrect secret key. Try again.
                                     </p>
                                 )}
-                                {/* <p className="text-xs text-muted-foreground">
-                                    Demo hint: the key is{" "}
-                                    <code className="bg-muted px-1 rounded">
-                                        1234
-                                    </code>
-                                </p> */}
                             </div>
                             <button
                                 onClick={() => decyted()}

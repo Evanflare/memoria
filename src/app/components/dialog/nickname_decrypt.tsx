@@ -1,6 +1,7 @@
 import { X, Lock } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { plaintextPoints } from "../../tauri_core/command_frontend";
+import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
 
 /// 当校验密码成功的时候，会返回一个明文的points列表。
 export default function NicknameDecryptDialog({
@@ -14,15 +15,13 @@ export default function NicknameDecryptDialog({
     const [error, setError] = useState(false);
     const [err_message, setMessage] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
+    const { dialogOffset, ensureInputVisible } = useKeyboardAvoidance(inputRef);
 
-    useEffect(() => {
-        inputRef.current?.focus();
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, [onClose]);
+    const onCloseHandler = () => {
+        const active = document.activeElement as HTMLElement | null;
+        active?.blur();
+        onClose();
+    };
 
     const attempt = useCallback(async () => {
         try {
@@ -42,12 +41,15 @@ export default function NicknameDecryptDialog({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-500 ease-out"
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose();
             }}
         >
-            <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+            <div
+                className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden transition-transform duration-400 ease-out"
+                style={{ transform: dialogOffset ? `translateY(-${dialogOffset}px)` : undefined }}
+            >
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -63,7 +65,7 @@ export default function NicknameDecryptDialog({
                         </div>
                     </div>
                     <button
-                        onClick={onClose}
+                        onClick={onCloseHandler}
                         className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                     >
                         <X size={14} />
@@ -81,6 +83,10 @@ export default function NicknameDecryptDialog({
                                 setError(false);
                             }}
                             onKeyDown={handleKeyDown}
+                            onFocus={ensureInputVisible}
+                            onClick={ensureInputVisible}
+                            onTouchStart={ensureInputVisible}
+                            onPointerDown={ensureInputVisible}
                             placeholder="按Enter确认"
                             className={`w-full px-3 py-2 rounded-lg bg-input-background border text-sm outline-none transition-colors ${error
                                 ? "border-destructive"

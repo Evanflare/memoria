@@ -1,9 +1,10 @@
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { changeSecret } from "../../tauri_core/command_frontend";
 import { message } from "@tauri-apps/plugin-dialog";
+import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
 
 export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDialogOpen }: {
     changeKeyDialogOpen: boolean;
@@ -14,6 +15,8 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
     const [newKey, setNewKey] = useState("");
     const [confirmNewKey, setConfirmNewKey] = useState("");
     const [isChangingKey, setIsChangingKey] = useState(false);
+    const currentKeyRef = useRef<HTMLInputElement>(null);
+    const { dialogOffset, ensureInputVisible } = useKeyboardAvoidance(currentKeyRef);
 
     // 修改密钥的处理函数
     const handleChangeKey = async () => {
@@ -52,9 +55,14 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
                     <div>
                         <div className="text-sm font-medium mb-1">当前密钥</div>
                         <input
+                            ref={currentKeyRef}
                             type="password"
                             value={currentKey}
                             onChange={(e) => setCurrentKey(e.target.value)}
+                            onFocus={ensureInputVisible}
+                            onClick={ensureInputVisible}
+                            onTouchStart={ensureInputVisible}
+                            onPointerDown={ensureInputVisible}
                             className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                         />
                     </div>
@@ -64,6 +72,10 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
                             type="password"
                             value={newKey}
                             onChange={(e) => setNewKey(e.target.value)}
+                            onFocus={ensureInputVisible}
+                            onClick={ensureInputVisible}
+                            onTouchStart={ensureInputVisible}
+                            onPointerDown={ensureInputVisible}
                             className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                         />
                     </div>
@@ -73,6 +85,10 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
                             type="password"
                             value={confirmNewKey}
                             onChange={(e) => setConfirmNewKey(e.target.value)}
+                            onFocus={ensureInputVisible}
+                            onClick={ensureInputVisible}
+                            onTouchStart={ensureInputVisible}
+                            onPointerDown={ensureInputVisible}
                             className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                         />
                     </div>

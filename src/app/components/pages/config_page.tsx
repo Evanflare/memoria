@@ -1,5 +1,5 @@
 import { DeleteConfirmDialog } from '../dialog/DeleteConfirmDialog';
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { changeFile, del_inner_file, extern_file_include, getConfig } from "../../tauri_core/command_frontend";
 import {
     Dialog,
@@ -8,6 +8,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
+import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
 import { Button } from "../ui/button";
 import {
     //handleCheckOut,    // 原来的外部切换逻辑，现在可能不用了，但保留为备用
@@ -30,6 +31,8 @@ export default function ConfigPage() {
     const [localSecret, setLocalSecret] = useState("");
     const [importSecret, setImportSecret] = useState("");
     const [isImporting, setIsImporting] = useState(false);
+    const localSecretRef = useRef<HTMLInputElement>(null);
+    const { dialogOffset: importDialogOffset, ensureInputVisible: ensureImportInputVisible } = useKeyboardAvoidance(localSecretRef);
     const [changeKeyDialogOpen, setChangeKeyDialogOpen] = useState(false);
 
     // 密码文件路径弹窗的显隐控制
@@ -280,7 +283,10 @@ export default function ConfigPage() {
             />
             {/* 导入对话框 */}
             <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent
+                    className="sm:max-w-md transition-transform duration-400 ease-out"
+                    style={{ transform: importDialogOffset ? `translateY(-${importDialogOffset}px)` : undefined }}
+                >
                     <DialogHeader>
                         <DialogTitle>导入数据</DialogTitle>
                     </DialogHeader>
@@ -303,9 +309,14 @@ export default function ConfigPage() {
                         <div>
                             <div className="text-sm font-medium mb-1">当前加密密钥</div>
                             <input
+                                ref={localSecretRef}
                                 type="password"
                                 value={localSecret}
                                 onChange={(e) => setLocalSecret(e.target.value)}
+                                onFocus={ensureImportInputVisible}
+                                onClick={ensureImportInputVisible}
+                                onTouchStart={ensureImportInputVisible}
+                                onPointerDown={ensureImportInputVisible}
                                 disabled={!selectedFilePath}
                                 className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm disabled:opacity-50"
                             />
@@ -316,6 +327,10 @@ export default function ConfigPage() {
                                 type="password"
                                 value={importSecret}
                                 onChange={(e) => setImportSecret(e.target.value)}
+                                onFocus={ensureImportInputVisible}
+                                onClick={ensureImportInputVisible}
+                                onTouchStart={ensureImportInputVisible}
+                                onPointerDown={ensureImportInputVisible}
                                 disabled={!selectedFilePath}
                                 className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm disabled:opacity-50"
                             />

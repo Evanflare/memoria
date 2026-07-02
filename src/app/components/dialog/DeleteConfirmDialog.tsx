@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
 
 // 删除确认对话框组件
 export function DeleteConfirmDialog({
@@ -17,6 +18,8 @@ export function DeleteConfirmDialog({
     const [password, setPassword] = useState("");
     const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
+    const { dialogOffset, ensureInputVisible } = useKeyboardAvoidance(passwordRef);
 
     // 封装关闭：清除内部状态，再调用外部 onClose
     const handleClose = () => {
@@ -58,7 +61,8 @@ export function DeleteConfirmDialog({
             onClick={handleOverlayClick}
         >
             <div
-                className="bg-background rounded-2xl shadow-xl w-full max-w-md p-6 border border-border"
+                className="bg-background rounded-2xl shadow-xl w-full max-w-md p-6 border border-border transition-transform duration-300 ease-out"
+                style={{ transform: dialogOffset ? `translateY(-${dialogOffset}px)` : undefined }}
                 onClick={(e) => e.stopPropagation()} // 阻止冒泡，避免点击内容区关闭
             >
                 <h3 className="text-lg font-semibold mb-2">确认删除</h3>
@@ -66,9 +70,14 @@ export function DeleteConfirmDialog({
                     此操作不可撤销，请输入您的密钥以确认删除该记忆点。
                 </p>
                 <input
+                    ref={passwordRef}
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={ensureInputVisible}
+                    onClick={ensureInputVisible}
+                    onTouchStart={ensureInputVisible}
+                    onPointerDown={ensureInputVisible}
                     placeholder="密钥"
                     className="w-full px-3 py-2 rounded-lg bg-input-background border border-border text-sm focus:border-primary outline-none transition-colors mb-4"
                     autoFocus
