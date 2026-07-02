@@ -8,7 +8,7 @@ export function useKeyboardAvoidance<T extends HTMLElement>(initialFocusRef: Rea
         // 只做上浮，禁止滚动页面。
         // 保持在输入聚焦时仅使用 dialogOffset 进行位移，不执行 scrollIntoView。
     }, [initialFocusRef]);
-
+    console.log("避免声明后未使用的变量警告，viewportHeightRef :", viewportHeightRef);
     useEffect(() => {
         const initial = initialFocusRef.current;
         if (initial) {

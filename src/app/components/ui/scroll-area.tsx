@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRef } from "react";
 import { cn } from "./utils";
 
-const SCROLLBAR_WIDTH = 6; // px
+const SCROLLBAR_WIDTH = 3; // px
 const HIDE_DELAY_MS = 1000;
 
 const ScrollArea = React.forwardRef<
@@ -82,8 +82,8 @@ const ScrollArea = React.forwardRef<
         ref={viewportRef}
         className="h-full w-full overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         style={{
-          paddingRight: `${SCROLLBAR_WIDTH + 4}px`,
-          paddingLeft: `${SCROLLBAR_WIDTH + 4}px`
+          //paddingRight: `${SCROLLBAR_WIDTH + 4}px`,
+          //paddingLeft: `${SCROLLBAR_WIDTH + 4}px`
         }} // 额外 4px 间距避免滚动条紧贴内容
       >
         {children}

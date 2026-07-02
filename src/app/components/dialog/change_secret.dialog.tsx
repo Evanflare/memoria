@@ -20,6 +20,7 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
 
     // 修改密钥的处理函数
     const handleChangeKey = async () => {
+        console.log("避免声明后未使用的变量警告，dialogOffset:", dialogOffset);
         if (!currentKey.trim() || !newKey.trim() || !confirmNewKey.trim()) {
             await message("请完整填写所有密钥字段", { title: "提示", kind: "warning" });
             return;
