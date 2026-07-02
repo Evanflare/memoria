@@ -81,7 +81,10 @@ const ScrollArea = React.forwardRef<
       <div
         ref={viewportRef}
         className="h-full w-full overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        style={{ paddingRight: `${SCROLLBAR_WIDTH + 4}px` }} // 额外 4px 间距避免滚动条紧贴内容
+        style={{
+          paddingRight: `${SCROLLBAR_WIDTH + 4}px`,
+          paddingLeft: `${SCROLLBAR_WIDTH + 4}px`
+        }} // 额外 4px 间距避免滚动条紧贴内容
       >
         {children}
       </div>
