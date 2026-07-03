@@ -1,6 +1,6 @@
 [package]
 name = "memoria"
-version = "1.0.3"
+version = "1.0.4"
 description = "a password memory points manager tool."
 authors = ["Evanflare"]
 edition = "2021"
@@ -13,6 +13,13 @@ edition = "2021"
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "memoria_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+[profile.release]
+lto = true        # 链接时优化，减小体积
+opt-level = "z"   # 优先优化体积（或 "s" 平衡）
+strip = true      # 移除调试符号
+panic = "abort"   # 移除 panic 展开代码
+codegen-units = 1 # 允许更多优化
 
 [build-dependencies]
 tauri-build = { version = "2", features = ["isolation"] }
