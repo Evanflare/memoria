@@ -61,6 +61,7 @@ export function DeleteConfirmDialog({
             onClick={handleOverlayClick}
         >
             <div
+                data-dialog-content
                 className="bg-background rounded-2xl shadow-xl w-full max-w-md p-6 border border-border transition-transform duration-300 ease-out"
                 style={{ transform: dialogOffset ? `translateY(-${dialogOffset}px)` : undefined }}
                 onClick={(e) => e.stopPropagation()} // 阻止冒泡，避免点击内容区关闭

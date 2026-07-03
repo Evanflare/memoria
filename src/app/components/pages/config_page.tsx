@@ -286,6 +286,7 @@ export default function ConfigPage() {
             {/* 导入对话框 */}
             <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
                 <DialogContent
+                    data-dialog-content
                     className="sm:max-w-md transition-transform duration-400 ease-out"
                     style={{ transform: importDialogOffset ? `translateY(-${importDialogOffset}px)` : undefined }}
                 >

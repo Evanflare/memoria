@@ -47,6 +47,7 @@ export default function NicknameDecryptDialog({
             }}
         >
             <div
+                data-dialog-content
                 className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden transition-transform duration-400 ease-out"
                 style={{ transform: dialogOffset ? `translateY(-${dialogOffset}px)` : undefined }}
             >

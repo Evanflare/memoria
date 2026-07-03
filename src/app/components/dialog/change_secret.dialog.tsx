@@ -20,7 +20,6 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
 
     // 修改密钥的处理函数
     const handleChangeKey = async () => {
-        console.log("避免声明后未使用的变量警告，dialogOffset:", dialogOffset);
         if (!currentKey.trim() || !newKey.trim() || !confirmNewKey.trim()) {
             await message("请完整填写所有密钥字段", { title: "提示", kind: "warning" });
             return;
@@ -48,7 +47,7 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
 
     return (
         < Dialog open={changeKeyDialogOpen} onOpenChange={setChangeKeyDialogOpen} >
-            <DialogContent className="sm:max-w-md">
+            <DialogContent data-dialog-content className="sm:max-w-md transition-transform duration-300 ease-out" style={{ transform: dialogOffset ? `translateY(-${dialogOffset}px)` : undefined }}>
                 <DialogHeader>
                     <DialogTitle>修改加密密钥</DialogTitle>
                 </DialogHeader>
@@ -61,9 +60,6 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
                             value={currentKey}
                             onChange={(e) => setCurrentKey(e.target.value)}
                             onFocus={ensureInputVisible}
-                            onClick={ensureInputVisible}
-                            onTouchStart={ensureInputVisible}
-                            onPointerDown={ensureInputVisible}
                             className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                         />
                     </div>
@@ -74,9 +70,6 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
                             value={newKey}
                             onChange={(e) => setNewKey(e.target.value)}
                             onFocus={ensureInputVisible}
-                            onClick={ensureInputVisible}
-                            onTouchStart={ensureInputVisible}
-                            onPointerDown={ensureInputVisible}
                             className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                         />
                     </div>
@@ -87,9 +80,6 @@ export default function ChangeSecretDialog({ changeKeyDialogOpen, setChangeKeyDi
                             value={confirmNewKey}
                             onChange={(e) => setConfirmNewKey(e.target.value)}
                             onFocus={ensureInputVisible}
-                            onClick={ensureInputVisible}
-                            onTouchStart={ensureInputVisible}
-                            onPointerDown={ensureInputVisible}
                             className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                         />
                     </div>
