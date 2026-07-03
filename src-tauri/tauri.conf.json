@@ -9,6 +9,11 @@
     "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
+  "plugins": {
+    "myConfig": {
+      "releasePageUrl": "https://gitee.com/Evanflare/memoria/releases"
+    }
+  },
   "app": {
     "windows": [
       {

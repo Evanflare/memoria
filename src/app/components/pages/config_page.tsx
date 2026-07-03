@@ -253,10 +253,19 @@ export default function ConfigPage() {
 
                             {/* 版本信息 */}
                             <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                                <div className="text-sm font-medium mb-1">软件版本</div>
+                                <div className="text-sm font-medium mb-1">新版本获取地址</div>
                                 <div className="text-sm text-muted-foreground">
-                                    {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
+                                    <a href={import.meta.env.VITE_RELEASE_PAGE_URL} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                        {import.meta.env.VITE_RELEASE_PAGE_URL}
+                                    </a>
                                 </div>
+                                <div className="mt-4 pt-2">
+                                    <div className="text-sm font-medium mb-1">软件版本</div>
+                                    <div className="text-sm text-muted-foreground">
+                                        {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
+                                    </div>
+                                </div>
+
                                 <div className="mt-4 pt-2">
                                     <div className="font-medium">作者</div>
                                     <div className="text-sm text-muted-foreground">蒙煋Evanflare</div>
