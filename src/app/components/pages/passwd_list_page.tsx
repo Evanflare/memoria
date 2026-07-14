@@ -148,7 +148,11 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                 <UpdatePasswdDialog
                     passwd={updateTarget}
                     hidden={false}
-                    onClose={() => setUpdateTarget(null)}
+                    onClose={() => {
+                        setUpdateTarget(null);
+                        // 触发列表刷新
+                        dispatch({ type: "changed" });
+                    }}
                     onUpdated={() => {
                         setUpdateTarget(null);
                         dispatch({ type: "changed" });

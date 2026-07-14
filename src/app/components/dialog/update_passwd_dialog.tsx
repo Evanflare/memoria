@@ -1,18 +1,19 @@
-// src/app/components/dialog/edit_passwd_dialog.tsx
+// src/app/components/dialog/update_passwd_dialog.tsx
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { X, Edit3 } from "lucide-react";
-import { getPasswd, updatePasswd } from "../../tauri_core/command_frontend";
+import { addPasswd, getPasswd, updatePasswd } from "../../tauri_core/command_frontend";
 import { ScrollArea } from "../ui/scroll-area";
 import type { PasswdSummary } from "../../tauri_core/command_frontend";
 
-interface EditPasswdDialogProps {
+interface UpdatePasswdDialogProps {
     passwd: PasswdSummary; // 包含 uid, name, description, ciphertext
     hidden: boolean;
     onClose: () => void;
     onUpdated?: () => void;
 }
 
-export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }: EditPasswdDialogProps) {
+export default function UpdatePasswdDialog({ passwd, hidden, onClose, onUpdated }: UpdatePasswdDialogProps) {
     const [stage, setStage] = useState<"auth" | "view">("auth");
     const [secret, setSecret] = useState("");
     const [keyError, setKeyError] = useState<string | null>(null);
@@ -104,7 +105,45 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
             setSaving(false);
         }
     };
-
+    // 另存为新密码条目
+    const handleSaveAs = async () => {
+        console.log("提交新的passwd...");
+        if (!name.trim()) {
+            setSaveError("Name is required");
+            return;
+        }
+        if (!unique.trim()) {
+            setSaveError("Unique identifier is required");
+            return;
+        }
+        if (!secret.trim()) {
+            setSaveError("Secret key is required");
+            return;
+        }
+        console.log("校验通过，调用后端接口...");
+        setLoading(true);
+        setSaveError(null);
+        try {
+            const filteredParts = plaintext.split(" ").filter(p => p.trim() !== "");
+            await addPasswd(
+                filteredParts,
+                "", // unique已包含在filterdParts中，暂时传空字符串
+                false, // random
+                name,
+                description,
+                secret
+            );
+            // 成功提示
+            toast.success("成功添加新密码条目");
+        } catch (err: any) {
+            // 失败提示
+            toast.error("添加失败: " + (err.message || "Unknown error"));
+            console.error("操作失败", err);
+            setSaveError(err.message || "Failed to add password");
+        } finally {
+            setLoading(false);
+        }
+    };
     if (hidden) return null;
 
     return (
@@ -234,26 +273,38 @@ export default function EditPasswdDialog({ passwd, hidden, onClose, onUpdated }:
 
                                 {saveError && <p className="text-xs text-destructive">{saveError}</p>}
 
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={handleSave}
-                                        disabled={saving || (!isFieldChanged.name && !isFieldChanged.description && !isFieldChanged.unique && !isFieldChanged.plaintext)}
-                                        className="py-2 px-4 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm disabled:opacity-50"
-                                    >
-                                        {saving ? "保存中..." : "保存修改"}
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            // revert changes to initial (keep decrypted value as originally fetched)
-                                            setName(initial.current.name);
-                                            setDescription(initial.current.description);
-                                            setUnique(initial.current.unique);
-                                            if (plaintextOrig !== null) setPlaintext(plaintextOrig);
-                                        }}
-                                        className="py-2 px-4 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition text-sm"
-                                    >
-                                        恢复
-                                    </button>
+                                <div className="flex gap-2 flex-wrap justify-between">
+                                    <div>
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={saving || (!isFieldChanged.name && !isFieldChanged.description && !isFieldChanged.unique && !isFieldChanged.plaintext)}
+                                            className="py-2 px-4 mr-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition text-sm disabled:opacity-50"
+                                        >
+                                            {saving ? "保存中..." : "保存修改"}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                // revert changes to initial (keep decrypted value as originally fetched)
+                                                setName(initial.current.name);
+                                                setDescription(initial.current.description);
+                                                setUnique(initial.current.unique);
+                                                if (plaintextOrig !== null) setPlaintext(plaintextOrig);
+                                            }}
+                                            className="py-2 px-4 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition text-sm"
+                                        >
+                                            恢复
+                                        </button>
+                                    </div>
+
+                                    <div className="flex flex-row-reverse">
+                                        <button
+                                            className="py-2 px-4 rounded-lg border border-border bg-muted/10 text-muted-foreground hover:bg-muted/20 transition text-sm"
+                                            onClick={handleSaveAs}
+                                        >
+                                            另存
+                                        </button>
+                                    </div>
+
                                 </div>
                             </>
                         )}
