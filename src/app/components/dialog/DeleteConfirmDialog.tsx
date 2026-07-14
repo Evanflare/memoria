@@ -34,7 +34,11 @@ export function DeleteConfirmDialog({
             handleClose();
         }
     };
-
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleDelete();
+        }
+    };
     const handleDelete = async () => {
         if (!deleteKey || !password.trim()) {
             setError("请输入密钥");
@@ -77,6 +81,7 @@ export function DeleteConfirmDialog({
                     onChange={(e) => setPassword(e.target.value)}
                     onFocus={ensureInputVisible}
                     onClick={ensureInputVisible}
+                    onKeyDown={handleKeyDown}
                     onTouchStart={ensureInputVisible}
                     onPointerDown={ensureInputVisible}
                     placeholder="密钥"
