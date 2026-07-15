@@ -31,7 +31,7 @@ impl Nickname {
             tips_vec.shuffle(&mut rand::rng());
             return tips_vec.join(" ");
         } else {
-            return format!("{} {}", tips_vec.join(" ").to_string(), unique);
+            return format!("{} {}", tips_vec.join(" ").to_string(), unique.trim());
         }
     }
     /// 获取内部vec<string>
