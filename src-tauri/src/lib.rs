@@ -17,8 +17,6 @@ pub use commands::*;
 use log::info;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    logger::init();
-    info!("开始运行应用程序");
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init());
@@ -28,6 +26,13 @@ pub fn run() {
 
     builder
         .setup(|app| {
+            logger::init(
+                &app.config()
+                    .product_name
+                    .clone()
+                    .unwrap_or_else(|| "memoria".to_string()),
+            );
+            info!("开始运行应用程序");
             let state = Mutex::new(PasswdManager::new(app.handle().clone()));
             app.manage(state);
             Ok(())

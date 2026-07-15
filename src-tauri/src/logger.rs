@@ -1,7 +1,7 @@
 use log::LevelFilter;
 
 /// 初始化日志系统，自动识别平台和编译模式
-pub fn init() {
+pub fn init(app_name: &str) {
     let max_level = get_log_level();
 
     #[cfg(target_os = "android")]
@@ -9,7 +9,7 @@ pub fn init() {
         android_logger::init_once(
             android_logger::Config::default()
                 .with_max_level(max_level)
-                .with_tag("MyApp")
+                .with_tag(app_name)
                 .format(|buf, record| {
                     // Android 上使用简洁格式
                     std::fmt::write(buf, format_args!("[{}] {}", record.level(), record.args()))
@@ -35,21 +35,21 @@ pub fn init() {
             )
         });
 
-        // 如果需要同时写入文件（Release 版本推荐）
-        #[cfg(not(debug_assertions))]
-        {
-            if let Ok(log_dir) = dirs_next::data_dir() {
-                let log_path = log_dir.join("my_app").join("logs");
-                std::fs::create_dir_all(&log_path).ok();
-                if let Ok(file) = std::fs::OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(log_path.join("app.log"))
-                {
-                    builder.target(env_logger::Target::Pipe(Box::new(file)));
-                }
-            }
-        }
+        // // 如果需要同时写入文件（Release 版本推荐）
+        // #[cfg(not(debug_assertions))]
+        // {
+        //     if let Ok(log_dir) = dirs_next::data_dir() {
+        //         let log_path = log_dir.join("my_app").join("logs");
+        //         std::fs::create_dir_all(&log_path).ok();
+        //         if let Ok(file) = std::fs::OpenOptions::new()
+        //             .create(true)
+        //             .append(true)
+        //             .open(log_path.join("app.log"))
+        //         {
+        //             builder.target(env_logger::Target::Pipe(Box::new(file)));
+        //         }
+        //     }
+        // }
 
         builder.init();
     }
