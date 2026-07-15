@@ -3,6 +3,7 @@
 use crate::commands::dto::PasswdSummary;
 use crate::core::PasswdManager;
 use crate::error::Error;
+use log::{info, warn};
 use std::sync::Mutex;
 use tauri::State;
 
@@ -39,12 +40,21 @@ pub fn plaintext_points(
     key: String,
     state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<Vec<String>, Error> {
-    eprintln!("尝试获得明文memory points...");
+    info!("成功调用 plaintext_points 命令");
     let manager = state.lock().unwrap();
     let nicknames = manager
         .passwds
         .nickname
         .decrypted_nickname(&key)
-        .map_err(|e| Error::SecretKeyError(format!("解密失败: {}", e)))?;
-    Ok(nicknames)
+        .map_err(|e| Error::SecretKeyError(format!("解密失败: {}", e)));
+    match nicknames {
+        Ok(nicknames) => {
+            info!("成功获取明文points");
+            Ok(nicknames)
+        }
+        Err(e) => {
+            warn!("获取明文points失败: {}", e);
+            Err(e)
+        }
+    }
 }

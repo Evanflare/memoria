@@ -3,6 +3,7 @@
 use crate::dto::ConfigInfo;
 use crate::error::Error;
 use crate::{core::PasswdManager, platform::FileOperator};
+use log::warn;
 use std::sync::Mutex;
 use tauri::{AppHandle, State};
 
@@ -17,11 +18,21 @@ pub fn get_passwd(
     match manager.passwds.get_passwd_by_uid(&uid) {
         Some(passwd) => passwd
             .decypted_passwd(&key)
-            .map_err(|_| Error::SecretKeyError(format!("密钥不正确"))),
-        None => Err(Error::NotFoundItem(format!(
-            "未找到唯一的密码UID包含{}的密码条目",
-            uid
-        ))),
+            .map_err(|_| {
+                warn!("解密失败");
+                Error::SecretKeyError(format!("密钥不正确"))
+            })
+            .map(|plaintext| {
+                warn!("解密成功");
+                plaintext
+            }),
+        None => {
+            warn!("未找到唯一的密码UID包含{}的密码条目", uid);
+            Err(Error::NotFoundItem(format!(
+                "未找到唯一的密码UID包含{}的密码条目",
+                uid
+            )))
+        }
     }
 }
 

@@ -3,6 +3,7 @@
 
 use crate::core::crypt::*;
 use crate::core::error::CoreError;
+use log::debug;
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 
@@ -98,7 +99,7 @@ impl Nickname {
                     return ();
                 }
                 _ => {
-                    eprintln!("{} 与 nickname {} 不相等", ele, nick);
+                    debug!("{} 与 nickname {} 不相等", ele, nick);
                 }
             }
         }

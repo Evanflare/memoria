@@ -4,6 +4,7 @@ use std::sync::Mutex;
 
 use crate::core::PasswdManager;
 use crate::{error::Error, utils::passwd_vec_utils::check_secret_right_or_error};
+use log::{info, warn};
 use tauri::State;
 
 /// 用来删除tauri中的passwd vector状态中的memory points 中的项。
@@ -54,19 +55,25 @@ pub fn del_inner_file(
     secret_key: &str,
     state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<(), Error> {
+    info!("成功调用 del_inner_file 命令");
     // 得到passwdvector
     let manager = state.lock().unwrap();
     // 先校验密码是否正确
     match check_secret_right_or_error(&manager.passwds, secret_key) {
         Ok(_) => {}
-        Err(_) => return Err(Error::SecretKeyError("密码不正确".to_string())),
+        Err(_) => {
+            warn!("密码不正确");
+            return Err(Error::SecretKeyError("密码不正确".to_string()));
+        }
     }
-    println!("密码正确");
+    info!("密码正确");
     match manager.file_operator.del_inner_file(del_file_name) {
         Ok(_) => {
+            info!("文件删除成功");
             return Ok(());
         }
         Err(_) => {
+            warn!("无法找到文件: {}", del_file_name);
             return Err(Error::NotFoundItem("无法找到文件".to_string()));
         }
     }

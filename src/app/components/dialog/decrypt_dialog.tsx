@@ -110,7 +110,7 @@ export default function DecryptDialog({
                                 />
                                 {error && (
                                     <p className="text-xs text-destructive">
-                                        Incorrect secret key. Try again.
+                                        密码不正确，请检查后重新输入
                                     </p>
                                 )}
                             </div>

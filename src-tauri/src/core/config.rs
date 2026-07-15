@@ -1,4 +1,5 @@
 use crate::platform::FileOperator;
+use log::warn;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{self},
@@ -186,7 +187,7 @@ impl AppConfig {
             if !parent.exists() {
                 if let Err(e) = fs::create_dir_all(parent) {
                     if e.kind() == std::io::ErrorKind::PermissionDenied {
-                        eprintln!(
+                        warn!(
                             "无法创建父目录（只读文件系统或权限不足）：{}，跳过写入。",
                             parent.display()
                         );
@@ -200,13 +201,13 @@ impl AppConfig {
         // 写入文件
         if let Err(e) = self.file_operator.write(&toml_text, path) {
             if e == std::io::ErrorKind::PermissionDenied {
-                eprintln!(
+                warn!(
                     "无法写入密码文件（只读文件系统或权限不足）：{}，跳过写入。",
                     path.display()
                 );
                 return Ok(());
             } else {
-                eprint!(
+                warn!(
                     "路径{}错误，无法写入。错误信息：{}",
                     path.display(),
                     e.to_string()

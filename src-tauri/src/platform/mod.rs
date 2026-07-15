@@ -6,6 +6,7 @@ use std::{fs, path::Path};
 #[cfg(target_os = "android")]
 mod android;
 
+use log::{debug, info};
 use tauri::Manager;
 
 // // 提供给命令层的统一方法
@@ -55,7 +56,8 @@ impl FileOperator {
     }
     /// 删除内部文件
     pub fn del_inner_file(&self, file_name: &str) -> Result<(), ErrorKind> {
-        println!("收到参数 filename: {}", file_name);
+        info!("成功调用删除文件函数");
+        debug!("收到参数 filename: {}", file_name);
         use std::fs;
         // 先构建path
         let path = self
@@ -64,7 +66,7 @@ impl FileOperator {
             .join(crate::core::PASSWD_DIR_PREFIX)
             .join(file_name);
 
-        println!("构建好了路径: {}", &path.to_string_lossy());
+        debug!("构建好了路径: {}", &path.to_string_lossy());
         // 判断路径是否存在
         if path.exists() && fs::remove_file(path).is_ok() {
             return Ok(());
@@ -89,8 +91,10 @@ impl FileOperator {
             {
                 Ok(content) => Ok(content),
                 Err(e) => {
-                    eprintln!("无法读取文件: {}", file_uri.display());
-                    eprintln!("错误原因: {}", e);
+                    use log::warn;
+
+                    warn!("无法读取文件: {}", file_uri.display());
+                    warn!("错误原因: {}", e);
                     Err(ErrorKind::NotFound)
                 }
             }

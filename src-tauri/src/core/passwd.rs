@@ -8,6 +8,7 @@ use crate::platform::FileOperator;
 
 use ::serde::{Deserialize, Serialize};
 use ::uuid::*;
+use log::{info, warn};
 
 use std::fs;
 
@@ -152,7 +153,7 @@ impl PasswdVector {
         let path_res = file_operator.read_to_string(&config.passwd_file_path);
         let content = match path_res {
             Err(e) => {
-                eprintln!("无法读取或解析本地配置: {}", e);
+                warn!("无法读取或解析本地配置: {}", e);
                 String::new()
             }
             Ok(content) => content,
@@ -163,7 +164,7 @@ impl PasswdVector {
                 passwd_vector
             }
             Err(e) => {
-                eprintln!("空符传直接创建新对象: {}", e.as_str());
+                info!("空配置直接创建新对象: {}", e.as_str());
                 let res = PasswdVector {
                     vec: Vec::new(),
                     nickname: Nickname::new(config.fill_char),
@@ -239,7 +240,7 @@ impl PasswdVector {
     }
     /// 保存到配置
     pub fn store(&self, path: &PathBuf) -> Result<(), PasswdError> {
-        eprintln!("保存文件执行中...");
+        info!("成功调用配置保存函数");
         // 序列化 passwd与nickname 为 TOML 字符串
         let toml_text: String = match toml::to_string_pretty(self) {
             Ok(t) => t,
@@ -255,7 +256,7 @@ impl PasswdVector {
             if !parent.exists() {
                 if let Err(e) = fs::create_dir_all(parent) {
                     if e.kind() == std::io::ErrorKind::PermissionDenied {
-                        eprintln!(
+                        warn!(
                             "无法创建父目录（只读文件系统或权限不足）：{}，跳过写入。",
                             parent.display()
                         );
@@ -272,13 +273,13 @@ impl PasswdVector {
         // 写入文件
         if let Err(e) = fs::write(path.clone(), toml_text) {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
-                eprintln!(
+                warn!(
                     "无法写入密码文件（只读文件系统或权限不足）：{}，跳过写入。",
                     path.display()
                 );
                 return Ok(());
             } else {
-                eprint!(
+                warn!(
                     "路径{}错误，无法写入。错误信息：{}",
                     path.display(),
                     e.to_string()
@@ -336,7 +337,7 @@ impl PasswdVector {
             if !parent.exists() {
                 if let Err(e) = fs::create_dir_all(parent) {
                     if e.kind() == std::io::ErrorKind::PermissionDenied {
-                        eprintln!(
+                        warn!(
                             "无法创建父目录（只读文件系统或权限不足）：{}，跳过创建。",
                             parent.display()
                         );
@@ -356,7 +357,7 @@ impl PasswdVector {
         // 写入文件
         if let Err(e) = fs::write(path, toml_text) {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
-                eprintln!(
+                warn!(
                     "无法写入文件（只读文件系统或权限不足）：{}，跳过写入。",
                     path.display()
                 );

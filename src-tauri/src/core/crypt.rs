@@ -80,6 +80,8 @@ pub fn decypt_string(
 #[cfg(test)]
 mod tests {
 
+    use log::debug;
+
     use crate::core::config::AppConfig;
     use crate::core::crypt::*;
     // 测试加密之后再解密，比对解密与原文。
@@ -90,10 +92,10 @@ mod tests {
         let password = "mypass"; // 你的短密钥
                                  // 加密
         let encrypted = encrypt(data, password, cfg.fill_char);
-        println!("密文: {}", hex::encode(&encrypted));
+        debug!("密文: {}", hex::encode(&encrypted));
         // 解密
         let decrypted = decrypt(&encrypted, password, cfg.fill_char);
-        println!(
+        debug!(
             "解密: {}",
             String::from_utf8_lossy(&decrypted.clone().unwrap())
         );

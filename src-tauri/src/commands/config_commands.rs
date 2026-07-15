@@ -1,6 +1,7 @@
 //! 关于配置信息导入、导出、切换、更新等命令
 //!
 
+use log::{debug, info, warn};
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -106,19 +107,23 @@ pub fn extern_file_include(
     app_handle: AppHandle,
     state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<String, String> {
-    eprintln!("进入命令extern_file_path, 参数: {}", extern_file_path);
+    info!("成功调用 extern_file_include 命令");
+    debug!("extern_file_path: {}", extern_file_path);
     match PathBuf::from_str(extern_file_path) {
         Ok(path) => {
             // 获取默认配置文件
             let dir = get_app_data_dir(app_handle).unwrap();
-            eprintln!("解析成功路径: {}", path.display());
+            debug!("解析成功路径: {}", path.display());
             let manager = state.lock().unwrap();
             let file_operator = manager.file_operator.clone();
             let content = match file_operator.read_to_string(&path) {
                 Ok(content) => content,
-                Err(e) => return Err(format!("读取文件失败：{}", e.to_string())),
+                Err(e) => {
+                    warn!("读取文件失败: {}", e.to_string());
+                    return Err(format!("读取文件失败：{}", e.to_string()));
+                }
             };
-            eprintln!("成功读取文件内容：{:10}", content);
+            debug!("成功读取文件内容：{:10}", content);
             // 构建新路径，并判断路径是否已被占用
             let mut new_path = PathBuf::from_str(&dir).unwrap();
             new_path.push(path.file_name().unwrap());
@@ -135,7 +140,7 @@ pub fn extern_file_include(
             Ok(new_path.display().to_string())
         }
         Err(_) => {
-            eprintln!("路径无法解析: {}", extern_file_path);
+            warn!("路径无法解析: {}", extern_file_path);
             Err(format!("路径无法解析：{}", extern_file_path))
         }
     }

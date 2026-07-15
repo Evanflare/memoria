@@ -2,6 +2,7 @@
 
 use crate::core::PasswdManager;
 use crate::error::Error;
+use log::{debug, info, warn};
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -129,12 +130,18 @@ pub fn update_dark_mode(
     dark_mode: bool,
     state: State<'_, Mutex<PasswdManager>>,
 ) -> Result<(), Error> {
-    println!("update_dark_mode: {}", dark_mode);
+    info!("成功调用 update_dark_mode 命令");
+    debug!("dark_mode: {}", dark_mode);
     let mut manager = state.lock().unwrap();
     manager.config.dark_mode = dark_mode;
-    manager
+    let res = manager
         .config
         .store()
-        .map_err(|e| Error::FileOperationError(format!("无法保存配置文件: {}", e.to_string())))?;
+        .map_err(|e| Error::FileOperationError(format!("无法保存配置文件: {}", e.to_string())));
+    if let Err(e) = res {
+        warn!("保存配置文件失败: {}", e);
+        return Err(e);
+    }
+    info!("保存成功");
     Ok(())
 }

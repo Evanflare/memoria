@@ -7,13 +7,18 @@ use tauri::{generate_context, Manager};
 pub mod commands;
 pub mod core;
 pub mod error;
+pub mod logger;
 pub mod platform;
 pub mod status;
 pub mod utils;
 /// 重导出
 pub use commands::*;
+
+use log::info;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    logger::init();
+    info!("开始运行应用程序");
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init());
