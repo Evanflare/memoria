@@ -2,7 +2,26 @@
 <html lang="en">
 
 <head>
+  <script>
+    < !-
+      // 立即执行函数，防止页面闪烁
+      ->
+      (function () {
+        const theme = localStorage.getItem('theme') || 'system';
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+        if (theme === 'dark' || (theme === 'system' && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+        // 禁用过渡动画，防止首次渲染时的生硬效果
+        document.documentElement.classList.add('no-transitions');
+
+        // 等页面完全加载后再恢复动画
+        window.addEventListener('load', function () {
+          document.documentElement.classList.remove('no-transitions');
+        });
+      })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>passwd-memory-points</title>

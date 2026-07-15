@@ -37,11 +37,21 @@ const NAV_ITEMS: {
     },
   ];
 
+function setTheme(newTheme: 'light' | 'dark' | 'system') {
+  localStorage.setItem('theme', newTheme);
+  if (newTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else if (newTheme === 'light') {
+    document.documentElement.classList.remove('dark');
+  } else { // system
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', prefersDark);
+  }
+}
 
 import PasswordListPage from "./components/pages/passwd_list_page";
 import ConfigPage from "./components/pages/config_page";
 import NicknameManagerPage from "./components/pages/nickname_page";
-import { getConfig, update_dark_mode } from "./tauri_core/command_frontend";
 import { Toaster } from "sonner";
 function ActivePage({ page, isAndroid }: { page: Page, isAndroid: boolean }) {
   if (page === "passwd-list") return <PasswordListPage isAndroid={isAndroid} />;
@@ -79,40 +89,40 @@ export default function App() {
     } catch { }
   }, [sidebarWidth]);
 
-  // 当组件挂载时，获取配置并设置 dark 状态
-  useEffect(() => {
-    async function fetchConfig() {
-      try {
-        // 调用 getConfig 函数获取配置
-        console.log("Fetching config...");
-        const config = await getConfig();
-        setDark(config.dark_mode);
-        console.log("Got config dark_mode:", config.dark_mode);
-      } catch (error) {
-        console.error("Failed to fetch config:", error);
-      }
-    }
+  // // 当组件挂载时，获取配置并设置 dark 状态
+  // useEffect(() => {
+  //   async function fetchConfig() {
+  //     try {fd
+  //       // 调用 getConfig 函数获取配置
+  //       console.log("Fetching config...");
+  //       const config = await getConfig();
+  //       setDark(config.dark_mode);
+  //       console.log("Got config dark_mode:", config.dark_mode);
+  //     } catch (error) {
+  //       console.error("Failed to fetch config:", error);
+  //     }
+  //   }
 
-    fetchConfig();
-  }, []);
+  //   fetchConfig();
+  // }, []);
 
-  // 监听 dark 状态变化，并更新配置
-  useEffect(() => {
-    async function updateDarkModeConfig() {
-      try {
-        console.log("Updating dark mode config to:", dark);
-        if (typeof dark !== "boolean") {
-          console.error("Invalid dark mode value:", dark);
-          return;
-        }
-        await update_dark_mode(dark);
-      } catch (error) {
-        console.error("Failed to update dark mode config:", error);
-      }
-    }
+  // // 监听 dark 状态变化，并更新配置
+  // useEffect(() => {
+  //   async function updateDarkModeConfig() {
+  //     try {
+  //       console.log("Updating dark mode config to:", dark);
+  //       if (typeof dark !== "boolean") {
+  //         console.error("Invalid dark mode value:", dark);
+  //         return;
+  //       }
+  //       await update_dark_mode(dark);
+  //     } catch (error) {
+  //       console.error("Failed to update dark mode config:", error);
+  //     }
+  //   }
 
-    updateDarkModeConfig();
-  }, [dark]);
+  //   updateDarkModeConfig();
+  // }, [dark]);
 
   return (
     <>
@@ -133,10 +143,13 @@ export default function App() {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDark(!dark)}
+                onClick={() => {
+                  setTheme(dark ? 'light' : 'dark');
+                  setDark(!dark);
+                }}
                 className="flex items-center gap-2 px-3 py-1 rounded-md border border-sidebar-border bg-sidebar-accent/50"
               >
-                <span>{dark ? "Dark" : "Light"}</span>
+                <span>{dark ? "黑暗" : "明亮"}</span>
                 <span className="w-7 h-7 rounded flex items-center justify-center">
                   {dark ? <Moon size={16} /> : <Sun size={16} />}
                 </span>
@@ -241,7 +254,10 @@ export default function App() {
               <div className="px-4 py-5 border-t border-sidebar-border">
                 {!collapsed ? (
                   <button
-                    onClick={() => setDark(!dark)}
+                    onClick={() => {
+                      setTheme(dark ? 'light' : 'dark');
+                      setDark(!dark)
+                    }}
                     className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-sidebar-border bg-sidebar-accent/50 hover:bg-sidebar-accent transition-colors group"
                   >
                     <span className="text-sm text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground transition-colors">
@@ -254,8 +270,11 @@ export default function App() {
                 ) : (
                   <div className="flex items-center justify-center">
                     <button
-                      onClick={() => setDark(!dark)}
-                      title={dark ? "Dark Mode" : "Light Mode"}
+                      onClick={() => {
+                        setTheme(dark ? 'light' : 'dark');
+                        setDark(!dark)
+                      }}
+                      title={dark ? "黑夜模式" : "明亮模式"}
                       className="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-sidebar-accent transition-colors"
                     >
                       {dark ? <Moon size={16} /> : <Sun size={16} />}
