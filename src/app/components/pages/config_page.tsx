@@ -253,12 +253,13 @@ export default function ConfigPage() {
 
                             {/* 版本信息 */}
                             <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                                <div className="text-sm font-medium mb-1">新版本获取地址</div>
-                                <div className="text-sm text-muted-foreground">
-                                    <a href={import.meta.env.VITE_RELEASE_PAGE_URL} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                <div>
+                                    <div className="text-sm font-medium mb-1">新版本获取地址</div>
+                                    <div className="text-sm text-muted-foreground break-all whitespace-pre-wrap">
                                         {import.meta.env.VITE_RELEASE_PAGE_URL}
-                                    </a>
+                                    </div>
                                 </div>
+
                                 <div className="mt-4 pt-2">
                                     <div className="text-sm font-medium mb-1">软件版本</div>
                                     <div className="text-sm text-muted-foreground">
@@ -275,9 +276,9 @@ export default function ConfigPage() {
                         </div>
                     </div>
                 </ScrollArea>
-            </div>
+            </div >
             {/* 删除确认对话框 */}
-            <DeleteConfirmDialog
+            < DeleteConfirmDialog
                 open={deleteDialogOpen}
                 deleteKey={deleteFileName}
                 onClose={() => {
@@ -285,7 +286,8 @@ export default function ConfigPage() {
                     setDeleteFileName("");
                     // 恢复原来的对话框显示
                     setPasswdFileDialogOpen(true);
-                }}
+                }
+                }
                 deleteFunction={delete_file}
                 onSuccess={async () => {
                     //重新加载文件列表
@@ -371,6 +373,6 @@ export default function ConfigPage() {
 
             <ChangeSecretDialog changeKeyDialogOpen={changeKeyDialogOpen} setChangeKeyDialogOpen={setChangeKeyDialogOpen} />
 
-        </div>
+        </div >
     );
 }
