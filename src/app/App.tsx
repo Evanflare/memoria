@@ -53,6 +53,7 @@ function applyTheme(theme: Theme) {
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem("theme");
   if (stored === "light" || stored === "dark" || stored === "system") {
+    applyTheme(stored);
     return stored;
   }
   return "system";
