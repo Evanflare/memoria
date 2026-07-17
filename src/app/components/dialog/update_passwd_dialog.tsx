@@ -31,10 +31,19 @@ export default function UpdatePasswdDialog({ passwd, hidden, onClose, onUpdated 
     const [description, setDescription] = useState(initial.current.description);
     const [unique, setUnique] = useState(initial.current.unique);
     const [plaintext, setPlaintext] = useState(""); // decrypted password (populated after auth)
-
+    const inputRef = useRef<HTMLInputElement>(null);
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
+    useEffect(() => {
+        if (stage === "auth" && !hidden) {
+            // 延迟一帧确保 DOM 已完全渲染
+            const timer = setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [stage, hidden]);
     const nameRef = useRef<HTMLTextAreaElement | null>(null);
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -181,6 +190,7 @@ export default function UpdatePasswdDialog({ passwd, hidden, onClose, onUpdated 
                                     <label className="text-sm">校验密钥</label>
                                     <input
                                         type="password"
+                                        ref={inputRef}
                                         value={secret}
                                         onChange={(e) => setSecret(e.target.value)}
                                         placeholder="输入你的密钥"
