@@ -11,161 +11,12 @@ interface AddPasswordDialogProps {
     hidden: boolean;
 }
 
-
-// const AutocompleteInput = memo(function AutocompleteInput({
-//     value,
-//     onChange,
-//     options,
-//     placeholder,
-//     onKeyDown,
-// }: AutocompleteInputProps) {
-//     const [filtered, setFiltered] = useState<string[]>([]);
-//     const [showDropdown, setShowDropdown] = useState(false);
-//     const [highlightIndex, setHighlightIndex] = useState(-1);
-//     const [preventAutoOpen, setPreventAutoOpen] = useState(false); // 新增：禁止自动弹出标志
-//     const inputRef = useRef<HTMLInputElement>(null);
-//     const wrapperRef = useRef<HTMLDivElement>(null);
-
-//     const updateFiltered = (inputValue: string) => {
-//         if (!inputValue.trim()) {
-//             setFiltered([]);
-//             setShowDropdown(false);
-//             return;
-//         }
-//         const lowerQuery = inputValue.toLowerCase();
-//         const matches = options.filter(opt =>
-//             opt.toLowerCase().includes(lowerQuery)
-//         );
-//         setFiltered(matches);
-//         setShowDropdown(matches.length > 0);
-//         setHighlightIndex(-1);
-//     };
-
-//     const handleFocus = () => {
-//         if (options.length === 0) return;
-//         // 🔒 如果禁止自动弹出，则什么都不做，直接返回
-//         if (preventAutoOpen) return;
-
-//         if (value.trim() === "") {
-//             setFiltered(options);
-//             setShowDropdown(true);
-//         } else {
-//             updateFiltered(value);
-//         }
-//         setHighlightIndex(-1);
-//     };
-
-//     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         const newValue = e.target.value;
-//         onChange(newValue);
-//         // ✅ 用户主动修改内容 → 解除禁止自动弹出标志
-//         setPreventAutoOpen(false);
-
-//         if (options.length === 0) return;
-//         if (newValue.trim() === "") {
-//             setFiltered([]);
-//             setShowDropdown(false);
-//         } else {
-//             const lowerQuery = newValue.toLowerCase();
-//             const matches = options.filter(opt =>
-//                 opt.toLowerCase().includes(lowerQuery)
-//             );
-//             setFiltered(matches);
-//             setShowDropdown(matches.length > 0);
-//         }
-//         setHighlightIndex(-1);
-//     };
-
-//     // 点击外部关闭下拉（不影响 preventAutoOpen）
-//     useEffect(() => {
-//         const handleClickOutside = (e: MouseEvent) => {
-//             if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-//                 setShowDropdown(false);
-//             }
-//         };
-//         document.addEventListener("mousedown", handleClickOutside);
-//         return () => document.removeEventListener("mousedown", handleClickOutside);
-//     }, []);
-
-//     const handleSelect = (selected: string) => {
-//         onChange(selected);              // 更新父组件的值
-//         setShowDropdown(false);          // 关闭下拉
-//         setPreventAutoOpen(true);        // 🚫 禁止后续聚焦时自动弹出
-//         inputRef.current?.focus();
-//     };
-
-//     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-//         if (!showDropdown) {
-//             onKeyDown?.(e);
-//             return;
-//         }
-
-//         switch (e.key) {
-//             case "ArrowDown":
-//                 e.preventDefault();
-//                 setHighlightIndex(prev =>
-//                     prev < filtered.length - 1 ? prev + 1 : prev
-//                 );
-//                 break;
-//             case "ArrowUp":
-//                 e.preventDefault();
-//                 setHighlightIndex(prev => (prev > 0 ? prev - 1 : -1));
-//                 break;
-//             case "Enter":
-//                 e.preventDefault();
-//                 if (highlightIndex >= 0 && filtered[highlightIndex]) {
-//                     handleSelect(filtered[highlightIndex]);
-//                 } else if (filtered.length > 0) {
-//                     handleSelect(filtered[0]);
-//                 } else {
-//                     onKeyDown?.(e);
-//                 }
-//                 break;
-//             case "Escape":
-//                 setShowDropdown(false);
-//                 break;
-//             default:
-//                 onKeyDown?.(e);
-//         }
-//     };
-
-//     return (
-//         <div ref={wrapperRef} className="relative flex-1">
-//             <input
-//                 ref={inputRef}
-//                 type="text"
-//                 value={value}
-//                 onChange={handleChange}
-//                 onFocus={handleFocus}
-//                 onKeyDown={handleKeyDown}
-//                 placeholder={placeholder}
-//                 autoComplete="off"
-//                 className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
-//             />
-//             {showDropdown && filtered.length > 0 && (
-//                 <ul className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-auto">
-//                     {filtered.map((opt, idx) => (
-//                         <li
-//                             key={opt}
-//                             onClick={() => handleSelect(opt)}
-//                             className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent ${idx === highlightIndex ? "bg-accent" : ""
-//                                 }`}
-//                         >
-//                             {opt}
-//                         </li>
-//                     ))}
-//                 </ul>
-//             )}
-//         </div>
-//     );
-// });
-// ------------------------------------
-
 export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPasswordDialogProps) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [unique, setUnique] = useState("");
     const [parts, setParts] = useState<string[]>([""]); // 至少一个组成部分
+    const keyInputRef = useRef<HTMLInputElement | null>(null);
     const [random, setRandom] = useState(false);
     const [key, setKey] = useState("");
     const [loading, setLoading] = useState(false);
@@ -174,6 +25,12 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
     const [keyError, setKeyError] = useState<string>("");
     const nameInputRef = useRef<HTMLTextAreaElement | null>(null);
     const [plaintext_points, setPlaintextPoints] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (!hidden) {
+            keyInputRef.current?.focus();
+        }
+    }, [hidden]);
 
     const onClose = () => {
         setAuthNeed(true);
@@ -318,6 +175,7 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                     <label className="text-sm">校验密钥</label>
                                     <input
                                         type="password"
+                                        ref={keyInputRef}
                                         value={key}
                                         onChange={(e) => setKey(e.target.value)}
                                         placeholder="输入你的密钥"
