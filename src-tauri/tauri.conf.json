@@ -12,6 +12,13 @@
   "plugins": {
     "myConfig": {
       "releasePageUrl": "https://gitee.com/Evanflare/memoria/releases"
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY1N0ZCOTQxOEI2NkU0QUMKUldTczVHYUxRYmwvWmI4TGdMRDMwTGdPaCt0U2piZmVDNmpjSWJsREVySWJhTTJCNTJPcVdaVHgK",
+      "endpoints": [
+        "https://gitee.com/Evanflare/memoria/releases/latest/download/latest.json",
+        "https://github.com/Evanflare/memoria/releases/latest/download/latest.json"
+      ]
     }
   },
   "app": {
@@ -33,6 +40,7 @@
     }
   },
   "bundle": {
+    "createUpdaterArtifacts": true,
     "android": {
       "autoIncrementVersionCode": true
     },

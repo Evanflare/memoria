@@ -12,6 +12,7 @@
     "dialog:allow-open",
     "dialog:allow-save",
     "fs:allow-write-text-file",
+    "updater:default",
     "fs:default",
     {
       "identifier": "fs:allow-read-text-file",
