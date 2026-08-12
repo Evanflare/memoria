@@ -1,4 +1,7 @@
 import { DeleteConfirmDialog } from '../dialog/DeleteConfirmDialog';
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
+import { confirm } from '@tauri-apps/plugin-dialog'; // 已在项目中使用，确认是否已导入
 import { useRef, useState, useEffect } from "react";
 import { changeFile, del_inner_file, extern_file_include, getConfig } from "../../tauri_core/command_frontend";
 import {
@@ -139,7 +142,64 @@ export default function ConfigPage() {
             setIsImporting(false);
         }
     };
+    // 检测更新
+    const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
 
+    const handleCheckUpdate = async () => {
+        // 防止重复点击
+        if (isCheckingUpdate) return;
+        setIsCheckingUpdate(true);
+
+        try {
+            // 超时 2 秒
+            const update = await Promise.race([
+                check(),
+                new Promise<null>((_, reject) =>
+                    setTimeout(() => reject(new Error('检查更新超时，请检查网络后重试')), 5000)
+                )
+            ]);
+
+            if (!update) {
+                await message('当前已是最新版本', { title: '提示', kind: 'info' });
+                return;
+            }
+
+            // 发现新版本 -> 询问用户
+            const shouldUpdate = await confirm(
+                `发现新版本 ${update.version}，是否立即更新？\n\n更新日志：\n${update.body || ''}`,
+                { title: '发现更新', kind: 'info' }
+            );
+
+            if (shouldUpdate) {
+                // 下载并安装
+                await message('正在下载更新，请稍候...', { title: '提示', kind: 'info' });
+                let downloaded = 0;
+                let contentLength: number | undefined = 0;
+                await update.downloadAndInstall((event) => {
+                    switch (event.event) {
+                        case 'Started':
+                            contentLength = event.data.contentLength;
+                            console.log(`开始下载，总大小 ${contentLength} 字节`);
+                            break;
+                        case 'Progress':
+                            downloaded += event.data.chunkLength;
+                            console.log(`已下载 ${downloaded} / ${contentLength}`);
+                            break;
+                        case 'Finished':
+                            console.log('下载完成');
+                            break;
+                    }
+                });
+                // 安装完成后重启
+                await message('更新安装完成，应用即将重启', { title: '提示', kind: 'info' });
+                await relaunch();
+            }
+        } catch (error) {
+            await message((error as Error).message || '检查更新失败', { title: '错误', kind: 'error' });
+        } finally {
+            setIsCheckingUpdate(false);
+        }
+    };
     return (
         <div className="relative h-full w-full flex justify-center">
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-6 pt-8 w-4/5'} flex flex-col h-full`}>
@@ -252,22 +312,35 @@ export default function ConfigPage() {
                             </div>
 
                             {/* 版本信息 */}
-                            <div className="mt-6 p-4 rounded-xl border border-border bg-card">
-                                <div>
-                                    <div className="text-sm font-medium mb-1">新版本获取地址</div>
-                                    <div className="text-sm text-muted-foreground break-all whitespace-pre-wrap">
-                                        {import.meta.env.VITE_RELEASE_PAGE_URL}
-                                    </div>
-                                </div>
+                            {/* 检测更新卡片 */}
+                            <div className="mt-5 rounded-xl border border-border bg-card">
+                                <button
+                                    className="w-full min-h-10 flex justify-center items-center gap-2 hover:bg-accent/50 rounded-md px-3 py-2 transition-colors disabled:opacity-60"
+                                    onClick={handleCheckUpdate}
+                                    disabled={isCheckingUpdate || isAndroid}
+                                >
+                                    {isCheckingUpdate ? (
+                                        <>
+                                            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                            <span>正在检查更新...</span>
+                                        </>
+                                    ) : isAndroid ? (
+                                        '检测更新（桌面版专用）'
+                                    ) : (
+                                        '检测更新'
+                                    )}
+                                </button>
 
-                                <div className="mt-4 pt-2">
+                                {/* 版本信息 */}
+                                <div className="p-5 border-t border-border">
                                     <div className="text-sm font-medium mb-1">软件版本</div>
                                     <div className="text-sm text-muted-foreground">
                                         {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
                                     </div>
                                 </div>
 
-                                <div className="mt-4 pt-2">
+                                {/* 作者信息 */}
+                                <div className="p-5 border-t border-border">
                                     <div className="font-medium">作者</div>
                                     <div className="text-sm text-muted-foreground">蒙煋Evanflare</div>
                                 </div>

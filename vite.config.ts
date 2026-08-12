@@ -12,7 +12,6 @@ const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf-8'));
 // 获取软件名和版本号（tauri.conf.json 中可能位于 package.productName 或直接 productName，不同版本有差异）
 const appName = tauriConf.package?.productName || tauriConf.productName || 'memoria';
 const appVersion = tauriConf.package?.version || tauriConf.version || '0.0.0';
-const releasePageUrl = tauriConf.plugins?.myConfig?.releasePageUrl || '';
 // 注入构建时间
 const buildTime = new Date().toISOString().slice(0, 10); // 格式: YYYY-MM-DD
 
@@ -26,7 +25,6 @@ export default defineConfig(async () => ({
     'import.meta.env.VITE_APP_NAME': JSON.stringify(appName),
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(buildTime),
-    'import.meta.env.VITE_RELEASE_PAGE_URL': JSON.stringify(releasePageUrl),
   },
   resolve: {
     alias: {

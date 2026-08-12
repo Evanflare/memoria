@@ -15,7 +15,6 @@ pub mod utils;
 pub use commands::*;
 
 use log::info;
-use utils::updater::*;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
@@ -37,11 +36,6 @@ pub fn run() {
             info!("开始运行应用程序");
             let state = Mutex::new(PasswdManager::new(app.handle().clone()));
             app.manage(state);
-            // 检测更新
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                update(handle).await.unwrap();
-            });
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
