@@ -1,7 +1,7 @@
 use log::LevelFilter;
 
 /// 初始化日志系统，自动识别平台和编译模式
-pub fn init(app_name: &str) {
+pub fn init(_app_name: &str) {
     let max_level = get_log_level();
 
     #[cfg(target_os = "android")]
@@ -9,7 +9,7 @@ pub fn init(app_name: &str) {
         android_logger::init_once(
             android_logger::Config::default()
                 .with_max_level(max_level)
-                .with_tag(app_name)
+                .with_tag(_app_name)
                 .format(|buf, record| {
                     // Android 上使用简洁格式
                     std::fmt::write(buf, format_args!("[{}] {}", record.level(), record.args()))
