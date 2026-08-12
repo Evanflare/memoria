@@ -14,6 +14,14 @@
     "fs:allow-write-text-file",
     "fs:default",
     {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "https://gitee.com/Evanflare/memoria/*"
+        }
+      ]
+    },
+    {
       "identifier": "fs:allow-read-text-file",
       "allow": [
         {

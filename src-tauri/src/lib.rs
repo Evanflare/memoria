@@ -11,6 +11,8 @@ pub mod logger;
 pub mod platform;
 pub mod status;
 pub mod utils;
+#[cfg(target_os = "android")]
+use crate::commands::android_updater::download_apk;
 /// 重导出
 pub use commands::*;
 
@@ -19,7 +21,10 @@ use log::info;
 pub fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_dialog::init());
+    #[cfg(not(target_os = "android"))]
+    let builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
 
     #[cfg(target_os = "android")]
     let builder = builder.plugin(tauri_plugin_android_fs::init());
@@ -35,6 +40,11 @@ pub fn run() {
             info!("开始运行应用程序");
             let state = Mutex::new(PasswdManager::new(app.handle().clone()));
             app.manage(state);
+            #[cfg(target_os = "android")]
+            {
+                app.handle()
+                    .plugin(tauri_plugin_android_package_install::init())?;
+            }
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
@@ -46,6 +56,8 @@ pub fn run() {
             get_app_config_dir_files,
             extern_file_include,
             del_inner_file,
+            #[cfg(target_os = "android")]
+            download_apk,
             change_secret_key,
             change_file,
             export_string,

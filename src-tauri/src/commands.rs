@@ -1,5 +1,7 @@
 // 模块定义
 pub mod add_commands;
+#[cfg(target_os = "android")]
+pub mod android_updater;
 pub mod config_commands;
 pub mod del_commands;
 pub mod dto;
