@@ -13,9 +13,6 @@
     "dialog:allow-save",
     "fs:allow-write-text-file",
     "fs:default",
-    "android-package-install:allow-check-permissions",
-    "android-package-install:allow-request-permissions",
-    "android-package-install:allow-install",
     {
       "identifier": "http:default",
       "allow": [

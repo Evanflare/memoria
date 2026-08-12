@@ -56,6 +56,7 @@ pub fn run() {
             get_app_config_dir_files,
             extern_file_include,
             del_inner_file,
+            #[cfg(target_os = "android")]
             download_apk,
             change_secret_key,
             change_file,
