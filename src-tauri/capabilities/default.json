@@ -12,8 +12,18 @@
     "dialog:allow-open",
     "dialog:allow-save",
     "fs:allow-write-text-file",
-    "updater:default",
     "fs:default",
+    "android-package-install:allow-check-permissions",
+    "android-package-install:allow-request-permissions",
+    "android-package-install:allow-install",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "https://gitee.com/Evanflare/memoria/*"
+        }
+      ]
+    },
     {
       "identifier": "fs:allow-read-text-file",
       "allow": [

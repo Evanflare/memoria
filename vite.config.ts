@@ -14,6 +14,8 @@ const appName = tauriConf.package?.productName || tauriConf.productName || 'memo
 const appVersion = tauriConf.package?.version || tauriConf.version || '0.0.0';
 // 注入构建时间
 const buildTime = new Date().toISOString().slice(0, 10); // 格式: YYYY-MM-DD
+// 更新服务器地址
+const update_api_url = tauriConf.plugins.updater.endpoints[0] || 'https://gitee.com/Evanflare/memoria/releases/download/latest/latest.json'
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
@@ -25,6 +27,7 @@ export default defineConfig(async () => ({
     'import.meta.env.VITE_APP_NAME': JSON.stringify(appName),
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(buildTime),
+    'import.meta.env.VITE_UPDATE_API_URL': JSON.stringify(update_api_url)
   },
   resolve: {
     alias: {
@@ -37,14 +40,14 @@ export default defineConfig(async () => ({
   clearScreen: false,
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
-    port: 5173,
+    port: 1420,
     strictPort: true,
     host: host || false,
     hmr: host
       ? {
         protocol: "ws",
         host,
-        port: 5174,
+        port: 1421,
       }
       : undefined,
     watch: {

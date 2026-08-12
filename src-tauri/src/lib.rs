@@ -18,9 +18,11 @@ use log::info;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
-        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_dialog::init());
+    #[cfg(not(target_os = "android"))]
+    let builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
 
     #[cfg(target_os = "android")]
     let builder = builder.plugin(tauri_plugin_android_fs::init());
@@ -36,6 +38,11 @@ pub fn run() {
             info!("开始运行应用程序");
             let state = Mutex::new(PasswdManager::new(app.handle().clone()));
             app.manage(state);
+            #[cfg(target_os = "android")]
+            {
+                app.handle()
+                    .plugin(tauri_plugin_android_package_install::init())?;
+            }
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())

@@ -11,6 +11,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
+import { cacheDir, join } from '@tauri-apps/api/path';
+import { writeFile } from '@tauri-apps/plugin-fs';
+import { fetch } from '@tauri-apps/plugin-http';
+import { checkPermissions, requestPermissions, install } from '@jsr/kingsword__tauri-plugin-android-package-install';
 import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
 import { Button } from "../ui/button";
 import {
@@ -144,62 +148,135 @@ export default function ConfigPage() {
     };
     // 检测更新
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
-
-    const handleCheckUpdate = async () => {
-        // 防止重复点击
-        if (isCheckingUpdate) return;
-        setIsCheckingUpdate(true);
+    // Android 专用更新检查与安装
+    const handleAndroidUpdate = async () => {
+        if (isAndroidUpdating) return;
+        setIsAndroidUpdating(true);
 
         try {
-            // 超时 2 秒
-            const update = await Promise.race([
-                check(),
-                new Promise<null>((_, reject) =>
-                    setTimeout(() => reject(new Error('检查更新超时，请检查网络后重试')), 5000)
-                )
-            ]);
+            // 从环境变量读取更新 API 地址（需自己搭建）
+            const apiUrl = import.meta.env.VITE_UPDATE_API_URL;
+            if (!apiUrl) throw new Error('未配置更新服务器地址');
+            console.log("读取到更新服务器地址：", apiUrl)
 
-            if (!update) {
+            const response = await fetch(`${apiUrl}`);
+            console.log("收到响应：", response.status)
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            console.log("获取到最新版本信息：", JSON.stringify(data))
+            const latestVersion = data.version;
+            const downloadUrl = data.platforms.android.url;
+            if (!latestVersion || !downloadUrl) {
+                throw new Error('更新信息不完整');
+            }
+
+            const currentVersion = import.meta.env.VITE_APP_VERSION;
+            if (currentVersion === latestVersion) {
                 await message('当前已是最新版本', { title: '提示', kind: 'info' });
                 return;
             }
 
-            // 发现新版本 -> 询问用户
             const shouldUpdate = await confirm(
-                `发现新版本 ${update.version}，是否立即更新？\n\n更新日志：\n${update.body || ''}`,
+                `发现新版本 ${latestVersion}，是否立即更新？\n\n更新日志：\n${data.notes || ''}`,
                 { title: '发现更新', kind: 'info' }
             );
+            if (!shouldUpdate) return;
 
-            if (shouldUpdate) {
-                // 下载并安装
-                await message('正在下载更新，请稍候...', { title: '提示', kind: 'info' });
-                let downloaded = 0;
-                let contentLength: number | undefined = 0;
-                await update.downloadAndInstall((event) => {
-                    switch (event.event) {
-                        case 'Started':
-                            contentLength = event.data.contentLength;
-                            console.log(`开始下载，总大小 ${contentLength} 字节`);
-                            break;
-                        case 'Progress':
-                            downloaded += event.data.chunkLength;
-                            console.log(`已下载 ${downloaded} / ${contentLength}`);
-                            break;
-                        case 'Finished':
-                            console.log('下载完成');
-                            break;
-                    }
-                });
-                // 安装完成后重启
-                await message('更新安装完成，应用即将重启', { title: '提示', kind: 'info' });
-                await relaunch();
+            // 下载 APK
+            await message('正在下载更新包，请稍候...', { title: '提示', kind: 'info' });
+            const apkResponse = await fetch(downloadUrl);
+            if (!apkResponse.ok) throw new Error('下载失败');
+            const buffer = await apkResponse.arrayBuffer();
+            const apkData = new Uint8Array(buffer);
+
+            // 保存到缓存目录
+            const cacheDirPath = await cacheDir();
+            const apkFileName = `app_update_${latestVersion}.apk`;
+            const apkPath = await join(cacheDirPath, apkFileName);
+            await writeFile(apkPath, apkData);
+            console.log('APK 已保存至:', apkPath);
+
+            // 检查安装权限
+            const hasPermission = await checkPermissions();
+            if (!hasPermission) {
+                const granted = await requestPermissions();
+                if (!granted) {
+                    await message('需要授予“安装未知应用”权限才能继续', { title: '权限不足', kind: 'error' });
+                    return;
+                }
             }
+
+            // 触发安装
+            await install(apkPath);
+            // 安装后应用会退出，无需额外操作
         } catch (error) {
-            await message((error as Error).message || '检查更新失败', { title: '错误', kind: 'error' });
+            console.log("更新过程中出了问题：", error)
+            await message((error as Error).message || 'Android 更新失败', { title: '错误', kind: 'error' });
         } finally {
-            setIsCheckingUpdate(false);
+            setIsAndroidUpdating(false);
         }
     };
+    const handleCheckUpdate = async () => {
+        if (isAndroid) {
+            await handleAndroidUpdate();
+        } else {
+            // 防止重复点击
+            if (isCheckingUpdate) return;
+            setIsCheckingUpdate(true);
+
+            try {
+                // 超时 5 秒
+                const update = await Promise.race([
+                    check(),
+                    new Promise<null>((_, reject) =>
+                        setTimeout(() => reject(new Error('检查更新超时，请检查网络后重试')), 5000)
+                    )
+                ]);
+
+                if (!update) {
+                    await message('当前已是最新版本', { title: '提示', kind: 'info' });
+                    return;
+                }
+
+                // 发现新版本 -> 询问用户
+                const shouldUpdate = await confirm(
+                    `发现新版本 ${update.version}，是否立即更新？\n\n更新日志：\n${update.body || ''}`,
+                    { title: '发现更新', kind: 'info' }
+                );
+
+                if (shouldUpdate) {
+                    // 下载并安装
+                    await message('正在下载更新，请稍候...', { title: '提示', kind: 'info' });
+                    let downloaded = 0;
+                    let contentLength: number | undefined = 0;
+                    await update.downloadAndInstall((event) => {
+                        switch (event.event) {
+                            case 'Started':
+                                contentLength = event.data.contentLength;
+                                console.log(`开始下载，总大小 ${contentLength} 字节`);
+                                break;
+                            case 'Progress':
+                                downloaded += event.data.chunkLength;
+                                console.log(`已下载 ${downloaded} / ${contentLength}`);
+                                break;
+                            case 'Finished':
+                                console.log('下载完成');
+                                break;
+                        }
+                    });
+                    // 安装完成后重启
+                    await message('更新安装完成，应用即将重启', { title: '提示', kind: 'info' });
+                    await relaunch();
+                }
+            } catch (error) {
+                await message((error as Error).message || '检查更新失败', { title: '错误', kind: 'error' });
+            } finally {
+                setIsCheckingUpdate(false);
+            }
+        }
+    };
+    // android 更新
+    const [isAndroidUpdating, setIsAndroidUpdating] = useState(false);
     return (
         <div className="relative h-full w-full flex justify-center">
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-6 pt-8 w-4/5'} flex flex-col h-full`}>
@@ -317,15 +394,13 @@ export default function ConfigPage() {
                                 <button
                                     className="w-full min-h-10 flex justify-center items-center gap-2 hover:bg-accent/50 rounded-md px-3 py-2 transition-colors disabled:opacity-60"
                                     onClick={handleCheckUpdate}
-                                    disabled={isCheckingUpdate || isAndroid}
+                                    disabled={isCheckingUpdate || isAndroidUpdating}  // 两个状态任一 true 则禁用
                                 >
-                                    {isCheckingUpdate ? (
+                                    {isCheckingUpdate || isAndroidUpdating ? (
                                         <>
                                             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                                             <span>正在检查更新...</span>
                                         </>
-                                    ) : isAndroid ? (
-                                        '检测更新（桌面版专用）'
                                     ) : (
                                         '检测更新'
                                     )}
