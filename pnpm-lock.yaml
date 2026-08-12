@@ -218,6 +218,9 @@ importers:
       vaul:
         specifier: 1.1.2
         version: 1.1.2(@types/react-dom@19.2.4(@types/react@19.2.16))(@types/react@19.2.16)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      zustand:
+        specifier: ^5.0.14
+        version: 5.0.14(@types/react@19.2.16)(immer@11.1.8)(react@18.3.1)
     devDependencies:
       '@tailwindcss/vite':
         specifier: 4.1.12
@@ -4967,6 +4970,24 @@ packages:
     resolution: {integrity: sha512-+aybvXv/xafL6I67uSH5yLHrSy4/OaSOV9tniw4yZFIHpINXUcctVHE/WzHxOONrL2GHzJ8Fd4iDrNyaS6TVbg==}
     engines: {node: '>=10'}
     hasBin: true
+
+  zustand@5.0.14:
+    resolution: {integrity: sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
 
 snapshots:
 
@@ -9964,3 +9985,9 @@ snapshots:
       bin-build: 3.0.0
       bin-wrapper: 4.1.0
       logalot: 2.1.0
+
+  zustand@5.0.14(@types/react@19.2.16)(immer@11.1.8)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 19.2.16
+      immer: 11.1.8
+      react: 18.3.1

@@ -1,3 +1,4 @@
+import { listen } from '@tauri-apps/api/event';
 import { DeleteConfirmDialog } from '../dialog/DeleteConfirmDialog';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
@@ -11,8 +12,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../ui/dialog";
-import { cacheDir, join } from '@tauri-apps/api/path';
-import { writeFile } from '@tauri-apps/plugin-fs';
+import { useUpdateStore } from '../../stores/updateStore';
+
+
 import { fetch } from '@tauri-apps/plugin-http';
 import { checkPermissions, requestPermissions, install } from '@jsr/kingsword__tauri-plugin-android-package-install';
 import { useKeyboardAvoidance } from "../ui/useKeyboardAvoidance";
@@ -27,6 +29,7 @@ import { invoke } from "@tauri-apps/api/core";
 import ChangeSecretDialog from "../dialog/change_secret.dialog";
 import { ScrollArea } from "../ui/scroll-area";
 import InternalFilePicker, { InternalFile } from "../../components/ui/InternalFilePicker";
+import { Progress } from '../ui/progress';
 
 
 export default function ConfigPage() {
@@ -146,21 +149,35 @@ export default function ConfigPage() {
             setIsImporting(false);
         }
     };
+
+    const { progress, isDownloading, setProgress, setIsDownloading } = useUpdateStore();
+
+    useEffect(() => {
+        const unlistenPromise = listen<number>('download-progress', (event) => {
+            setProgress(event.payload);
+            console.log(`下载进度: ${event.payload}%`);
+        });
+
+        // 清理监听
+        return () => {
+            unlistenPromise.then(unlisten => unlisten());
+        };
+    }, []);
     // 检测更新
     const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
     // Android 专用更新检查与安装
     const handleAndroidUpdate = async () => {
-        if (isAndroidUpdating) return;
-        setIsAndroidUpdating(true);
-
+        if (isDownloading) return;  // 只用 Store 状态判断
         try {
             // 从环境变量读取更新 API 地址（需自己搭建）
             const apiUrl = import.meta.env.VITE_UPDATE_API_URL;
             if (!apiUrl) throw new Error('未配置更新服务器地址');
             console.log("读取到更新服务器地址：", apiUrl)
-
+            setIsCheckingUpdate(true)
             const response = await fetch(`${apiUrl}`);
+            setIsCheckingUpdate(false)
             console.log("收到响应：", response.status)
+            setIsCheckingUpdate(false)
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             console.log("获取到最新版本信息：", JSON.stringify(data))
@@ -183,37 +200,50 @@ export default function ConfigPage() {
             if (!shouldUpdate) return;
 
             // 下载 APK
-            await message('正在下载更新包，请稍候...', { title: '提示', kind: 'info' });
-            const apkResponse = await fetch(downloadUrl);
-            if (!apkResponse.ok) throw new Error('下载失败');
-            const buffer = await apkResponse.arrayBuffer();
-            const apkData = new Uint8Array(buffer);
+            //await message('正在下载更新包，请稍候...', { title: '提示', kind: 'info' });
+            // const apkResponse = await fetch(downloadUrl);
+            // if (!apkResponse.ok) throw new Error('下载失败');
+            // const buffer = await apkResponse.arrayBuffer();
+            // const apkData = new Uint8Array(buffer);
 
-            // 保存到缓存目录
-            const cacheDirPath = await cacheDir();
-            const apkFileName = `app_update_${latestVersion}.apk`;
-            const apkPath = await join(cacheDirPath, apkFileName);
-            await writeFile(apkPath, apkData);
+            // // 保存到缓存目录
+            // const cacheDirPath = await cacheDir();
+            // const apkFileName = `app_update_${latestVersion}.apk`;
+            setIsDownloading(true);
+            setProgress(0);  // 开始前重置进度为 0，但不清除 isDownloading
+            const apkPath = await invoke<string>('download_apk', {
+                url: downloadUrl,
+                version: latestVersion
+            });
+            // 清空状态
+            setIsDownloading(false);
+            setProgress(0);
+            //await writeFile(apkPath, apkData);
             console.log('APK 已保存至:', apkPath);
-
-            // 检查安装权限
+            // 检查权限
             const hasPermission = await checkPermissions();
             if (!hasPermission) {
                 const granted = await requestPermissions();
                 if (!granted) {
-                    await message('需要授予“安装未知应用”权限才能继续', { title: '权限不足', kind: 'error' });
-                    return;
+                    throw new Error('需要授予“安装未知应用”权限才能继续');
                 }
             }
-
             // 触发安装
             await install(apkPath);
             // 安装后应用会退出，无需额外操作
         } catch (error) {
-            console.log("更新过程中出了问题：", error)
+            // 失败时清空状态，允许用户重试
+            console.error('更新失败:', error);
             await message((error as Error).message || 'Android 更新失败', { title: '错误', kind: 'error' });
+            // 清空状态
+            setIsDownloading(false);
+            setProgress(0);
+            setIsCheckingUpdate(false);
         } finally {
-            setIsAndroidUpdating(false);
+            // 清空状态
+            setIsDownloading(false);
+            setProgress(0);
+            setIsCheckingUpdate(false);
         }
     };
     const handleCheckUpdate = async () => {
@@ -275,8 +305,6 @@ export default function ConfigPage() {
             }
         }
     };
-    // android 更新
-    const [isAndroidUpdating, setIsAndroidUpdating] = useState(false);
     return (
         <div className="relative h-full w-full flex justify-center">
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-6 pt-8 w-4/5'} flex flex-col h-full`}>
@@ -391,23 +419,35 @@ export default function ConfigPage() {
                             {/* 版本信息 */}
                             {/* 检测更新卡片 */}
                             <div className="mt-5 rounded-xl border border-border bg-card">
+                                {/* 检测更新按钮 */}
                                 <button
-                                    className="w-full min-h-10 flex justify-center items-center gap-2 hover:bg-accent/50 rounded-md px-3 py-2 transition-colors disabled:opacity-60"
+                                    className="w-full min-h-10 flex justify-center items-center gap-2 hover:bg-accent/50 rounded-t-xl px-3 py-2 transition-colors disabled:opacity-60"
                                     onClick={handleCheckUpdate}
-                                    disabled={isCheckingUpdate || isAndroidUpdating}  // 两个状态任一 true 则禁用
+                                    disabled={isCheckingUpdate || isDownloading}
                                 >
-                                    {isCheckingUpdate || isAndroidUpdating ? (
+                                    {isCheckingUpdate || isDownloading ? (
                                         <>
                                             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                                            <span>正在检查更新...</span>
+                                            <span>正在进行...</span>
                                         </>
                                     ) : (
                                         '检测更新'
                                     )}
                                 </button>
 
+                                {/* 下载进度条（仅在 Android 下载时显示） */}
+                                {isDownloading && (
+                                    <div className="px-4 py-3 border-t border-border">
+                                        <div className="flex justify-between text-sm text-muted-foreground mb-1">
+                                            <span>正在下载更新包...</span>
+                                            <span>{Math.round(progress)}%</span>
+                                        </div>
+                                        <Progress value={progress} className="h-2" />
+                                    </div>
+                                )}
+
                                 {/* 版本信息 */}
-                                <div className="p-5 border-t border-border">
+                                <div className="px-5 py-4 border-t border-border">
                                     <div className="text-sm font-medium mb-1">软件版本</div>
                                     <div className="text-sm text-muted-foreground">
                                         {import.meta.env.VITE_APP_NAME} v{import.meta.env.VITE_APP_VERSION} — 构建于 {import.meta.env.VITE_BUILD_TIME}
@@ -415,7 +455,7 @@ export default function ConfigPage() {
                                 </div>
 
                                 {/* 作者信息 */}
-                                <div className="p-5 border-t border-border">
+                                <div className="px-5 py-4 border-t border-border">
                                     <div className="font-medium">作者</div>
                                     <div className="text-sm text-muted-foreground">蒙煋Evanflare</div>
                                 </div>

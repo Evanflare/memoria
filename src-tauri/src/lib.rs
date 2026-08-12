@@ -11,6 +11,8 @@ pub mod logger;
 pub mod platform;
 pub mod status;
 pub mod utils;
+#[cfg(target_os = "android")]
+use crate::commands::android_updater::download_apk;
 /// 重导出
 pub use commands::*;
 
@@ -54,6 +56,7 @@ pub fn run() {
             get_app_config_dir_files,
             extern_file_include,
             del_inner_file,
+            download_apk,
             change_secret_key,
             change_file,
             export_string,
