@@ -2509,6 +2509,7 @@ dependencies = [
  "futures-util",
  "hex",
  "log",
+ "percent-encoding",
  "rand",
  "reqwest 0.11.27",
  "rpassword",
