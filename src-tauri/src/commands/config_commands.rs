@@ -126,14 +126,18 @@ pub fn extern_file_include(
             debug!("成功读取文件内容：{:10}", content);
             // 构建新路径，并判断路径是否已被占用
             let mut new_path = PathBuf::from_str(&dir).unwrap();
-            new_path.push(path.file_name().unwrap());
+            #[cfg(not(target_os = "android"))]
+            let file_name = path.file_name().unwrap().display().to_string();
+            #[cfg(target_os = "android")]
+            let file_name = file_name_from_content_uri(extern_file_path).unwrap();
+            new_path.push(&file_name);
             if new_path.exists() {
                 use uuid::Uuid;
                 new_path.pop();
                 new_path.push(format!(
-                    "{}{}",
-                    Uuid::new_v4(),
-                    path.file_name().unwrap().display()
+                    "{}_{}",
+                    &Uuid::new_v4().to_string()[..3],
+                    &file_name
                 ));
             }
             let _ = file_operator.write(&content, &new_path);
@@ -144,4 +148,21 @@ pub fn extern_file_include(
             Err(format!("路径无法解析：{}", extern_file_path))
         }
     }
+}
+
+#[cfg(target_os = "android")]
+use percent_encoding::percent_decode_str;
+#[cfg(target_os = "android")]
+fn file_name_from_content_uri(uri: &str) -> Option<String> {
+    // 1. 取最后一个 '/' 之后的部分
+    let last_segment = uri.rsplit('/').next()?;
+
+    // 2. URL 解码（primary%3AHome%2F... → primary:Home/...）
+    let decoded = percent_decode_str(last_segment).decode_utf8().ok()?;
+
+    // 3. 解码后可能仍含 '/'（如 primary:Home/wainyz/private/passwd.toml）
+    //    再取最后一段才是真正的文件名
+    let file_name = decoded.rsplit('/').next()?;
+
+    Some(file_name.to_string())
 }
