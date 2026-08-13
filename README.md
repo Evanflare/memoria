@@ -10,7 +10,13 @@
 <h3 align="center">密码回忆、提示词与规则管理和加密的工具</h3>
 <br>
 <div align="center">
-</div>
+<a href="./LICENSE.txt"><img src="https://img.shields.io/github/license/evanflare/memoria?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/>
+</a>
+ <a href="https://github.com/evanflare/memoria/releases/latest"><img src="https://img.shields.io/github/v/release/evanflare/memoria?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/>
+ </a>
+<!-- <a href="https://gitee.com/evanflare/memoria/releases/latest"><img src="https://img.shields.io/github/downloads/evanflare/memoria/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a> -->
+</div> 
+<br>
 <p align="center"><a href="https://github.com/Evanflare/passwd-memory-points/"><img src="images/memoria-homepage.png" alt="passwd memoty points Screenshot"/></a></p>
 
 # memoria 免费的密码回忆构建、管理和迁移工具
@@ -27,7 +33,7 @@ memoria 采用强加密算法加密已有提示词簿明文以及密码回忆簿
 
 ## 下载安装
 
-支持Windows与Android平台，安装包发布在 [github release页](https://github.com/Evanflare/passwd-memory-points/releases)或者 [gitee release页](https://gitee.com/Evanflare/passwd_memory_points/releases)中。
+支持 Windows 与 Android 平台，安装包发布在 [github release页](https://github.com/Evanflare/passwd-memory-points/releases) 或者  [gitee release页](https://gitee.com/Evanflare/passwd_memory_points/releases) 中。
 
 [点击前往下载](https://gitee.com/Evanflare/passwd_memory_points/releases)
 
@@ -44,10 +50,11 @@ memoria 的安全性取决于用户所建立的提示词、规则的私密度与
 memoria 最大的特点就是“只存储提示词与规则，不存储密码”，安全性取决与用户所建立的规则。
 
 1. 不直接存储密码，只有加密后的存储提示词与规则
-4. 可随意导入导出
-5. 一键更换加密密钥
-6. 支持 windows + android
-7. 本地存储无需联网功能
+2. 可随意导入导出
+3. 一键更换加密密钥
+4. 支持 windows + android
+5. 本地存储无需联网功能
+6. 支持多套密码回忆库
 
 建立一个自己私有的密码回忆提示词与规则系统，保存在线下介质中隐蔽保存，可以避免遗忘并且保证足够的安全性。
 
@@ -89,3 +96,5 @@ caps ->   #取capslock意，后接密码片段的首字母大写
 ![新建密码回忆](images/memoria-newPasswdMemory.png)
 
 ## 软件文档
+
+请阅读 [memoria 使用文档](doc/使用文档.md)。
