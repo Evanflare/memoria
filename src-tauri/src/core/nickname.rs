@@ -44,7 +44,7 @@ impl Nickname {
         old_secret: &str,
         new_secret: &str,
     ) -> Result<(), CoreError> {
-        let mut err_message: String = String::from("记忆点解密部分失败: ");
+        let mut err_message: String = String::from("提示词解密部分失败: ");
         let fill_char = self.default_fill_char;
         let mut fail_count = 0;
         let new_names = self
@@ -75,7 +75,7 @@ impl Nickname {
         // 判断是否有错误
         if fail_count > 0 {
             err_message.push_str(&fail_count.to_string());
-            err_message.push_str(" 个记忆点解密失败。");
+            err_message.push_str(" 个提示词解密失败。");
             Err(CoreError::SecretKeyDifferent(err_message))
         } else {
             Ok(())

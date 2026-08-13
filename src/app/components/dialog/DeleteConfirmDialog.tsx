@@ -72,7 +72,7 @@ export function DeleteConfirmDialog({
             >
                 <h3 className="text-lg font-semibold mb-2">确认删除</h3>
                 <p className="text-muted-foreground text-sm mb-4">
-                    此操作不可撤销，请输入您的密钥以确认删除该记忆点。
+                    此操作不可撤销，请输入您的密钥以确认删除该提示词。
                 </p>
                 <input
                     ref={passwordRef}

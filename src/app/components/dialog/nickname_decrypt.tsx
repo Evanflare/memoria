@@ -58,10 +58,10 @@ export default function NicknameDecryptDialog({
                         </div>
                         <div>
                             <div className="font-semibold">
-                                解密所有记忆点
+                                解密所有提示词
                             </div>
                             <div className="text-xs text-muted-foreground">
-                                展示记忆点集
+                                展示提示词簿
                             </div>
                         </div>
                     </div>

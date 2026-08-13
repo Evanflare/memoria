@@ -77,9 +77,9 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
     return (
         <div className="relative flex-1 flex justify-center h-full">
             <div className={`${isAndroid ? 'p-6 w-full' : 'p-8 w-4/5 max-w-4xl'} flex flex-col h-full`} >
-                <h1 className="mb-1">密码记忆点管理</h1>
+                <h1 className="mb-1">密码回忆簿</h1>
                 <p className="text-muted-foreground mb-6">
-                    管理你的密码记忆，添加一个密码记忆？
+                    帮助你回忆密码而不是存储密码。
                 </p>
 
                 {/* Search */}
@@ -97,7 +97,7 @@ export default function PasswordListPage({ isAndroid }: { isAndroid: boolean }) 
                                 query: e.currentTarget.value
                             })
                         }}
-                        placeholder="搜索'密码名'或者'描述'中的关键词..."
+                        placeholder="搜索'标题'或者'描述'中的关键词..."
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                     />
                     {passwdState.query && (
