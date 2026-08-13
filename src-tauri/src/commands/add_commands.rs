@@ -6,7 +6,7 @@ use log::{debug, info};
 use std::sync::Mutex;
 use tauri::State;
 
-/// 添加一个新的记忆点，前端需要提供一个昵称和一个密钥来加密昵称
+/// 添加一个新的提示词，前端需要提供一个昵称和一个密钥来加密昵称
 #[tauri::command]
 pub fn add_nickname(
     nickname: String,

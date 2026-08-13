@@ -22,8 +22,8 @@ const NAV_ITEMS: {
   label: string;
   icon: React.ReactNode;
 }[] = [
-    { id: "passwd-list", label: "密码记忆", icon: <KeyRound size={18} /> },
-    { id: "nickname-manager", label: "记忆点集", icon: <UserRound size={18} /> },
+    { id: "passwd-list", label: "密码回忆簿", icon: <KeyRound size={18} /> },
+    { id: "nickname-manager", label: "提示词簿", icon: <UserRound size={18} /> },
     { id: "config", label: "配置信息", icon: <Settings size={18} /> },
   ];
 
@@ -129,7 +129,7 @@ export default function App() {
               </div>
               <div>
                 <div className="text-xs text-sidebar-foreground/50 leading-none mb-0.5">密码</div>
-                <div className="font-semibold text-sidebar-foreground leading-none">记忆管理</div>
+                <div className="font-semibold text-sidebar-foreground leading-none">回忆簿</div>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ export default function App() {
                 {!collapsed && (
                   <div>
                     <div className="text-xs text-sidebar-foreground/50 leading-none mb-0.5">密码</div>
-                    <div className="font-semibold text-sidebar-foreground leading-none">记忆点管理</div>
+                    <div className="font-semibold text-sidebar-foreground leading-none">回忆簿</div>
                   </div>
                 )}
               </button>

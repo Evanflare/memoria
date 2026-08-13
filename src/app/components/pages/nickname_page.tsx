@@ -56,9 +56,9 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                 {/* 头部区域保持不变 */}
                 <div className="flex items-start justify-between gap-4 mb-6">
                     <div>
-                        <h1 className="mb-1">记忆点集</h1>
+                        <h1 className="mb-1">提示词簿</h1>
                         <p className="text-muted-foreground">
-                            每个记忆点都帮助你加密你的密码。
+                            创建你自己的记忆提示词与规则。
                         </p>
                     </div>
                     <button
@@ -76,14 +76,14 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                     </button>
                 </div>
 
-                {/* 添加记忆点表单保持不变 */}
+                {/* 添加提示词保持不变 */}
                 <div className="mb-6">
                     <div className="flex gap-2 items-center flex-wrap">
                         <input
                             type="text"
                             value={newNickname}
                             onChange={(e) => setNewNickname(e.target.value)}
-                            placeholder="新建一个记忆点"
+                            placeholder="新建一个提示词"
                             className="flex-1 px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                         />
                         <input
@@ -98,7 +98,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                 setAddError(null);
                                 setAddSuccess(null);
                                 if (!newNickname.trim() || !newKey.trim()) {
-                                    setAddError("记忆点和密钥是必填项");
+                                    setAddError("提示词和密钥是必填项");
                                     return;
                                 }
                                 setAdding(true);
@@ -136,7 +136,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="搜索所有包含关键词…"
+                        placeholder="输入关键词，搜索所有包含此关键词的项"
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                     />
                     {query && (
@@ -162,7 +162,7 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                     <div className="flex flex-col gap-3">
                         {filteredIndices.length === 0 ? (
                             <div className="py-12 text-center text-muted-foreground text-sm">
-                                没有找到匹配的记忆点。
+                                没有找到匹配的提示词。
                             </div>
                         ) : (
                             filteredIndices.map((idx) => {
@@ -179,8 +179,8 @@ export default function NicknameManagerPage({ isAndroid }: { isAndroid: boolean 
                                             </span>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="font-semibold">记忆点 {idx + 1}</div>
-                                            <div className="text-xs text-muted-foreground mb-1">Local</div>
+                                            <div className="font-semibold">提示词 {idx + 1}</div>
+                                            <div className="text-xs text-muted-foreground mb-1"> </div>
                                             <div
                                                 className={`text-sm font-mono tracking-wide transition-all ${revealed
                                                     ? "text-foreground"

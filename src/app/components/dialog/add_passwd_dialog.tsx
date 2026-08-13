@@ -155,9 +155,9 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                 <Plus size={15} className="text-primary" />
                             </div>
                             <div>
-                                <div className="font-semibold">添加一个密码记忆</div>
+                                <div className="font-semibold">添加一个密码回忆</div>
                                 <div className="text-xs text-muted-foreground">
-                                    加密并存储你的密码记忆
+                                    用提示词拼接一个密码回忆吧！
                                 </div>
                             </div>
                         </div>
@@ -230,14 +230,14 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
 
 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm">密码记忆点 *</label>
+                                    <label className="text-sm">提示词 *</label>
                                     {parts.map((part, idx) => (
                                         <div key={idx} className="flex gap-2 items-center">
                                             <AutocompleteInput
                                                 value={part}
                                                 onChange={(val) => updatePart(idx, val)}
                                                 options={plaintext_points}
-                                                placeholder={`记忆点 ${idx + 1}`}
+                                                placeholder={`提示词 ${idx + 1}`}
                                                 onKeyDown={handleKeyDown}
                                             />
                                             {parts.length > 1 && (
@@ -259,17 +259,17 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                         + 添加更多
                                     </button>
                                     <p className="text-xs text-muted-foreground">
-                                        这些关键词会被连接在一起但通过空格分隔,如果选择了随机打乱那么顺序将会变化。
+                                        这些提示词会被拼在一起通过空格分隔，如果选择了随机打乱那么顺序将会变化。
                                     </p>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-sm">随机串</label>
+                                    <label className="text-sm">后缀串</label>
                                     <input
                                         type="text"
                                         value={unique}
                                         onChange={(e) => setUnique(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="随便填一个值，确保每个密码都不一样！"
+                                        placeholder="为这个回忆添加一个独特的后缀，以保证唯一！"
                                         className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
@@ -283,7 +283,7 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                             onChange={(e) => setRandom(e.target.checked)}
                                             className="rounded border-border"
                                         />
-                                        <span>打乱记忆点顺序</span>
+                                        <span>打乱提示词顺序</span>
                                         <Shuffle size={14} className="text-muted-foreground" />
                                     </label>
                                 </div>
@@ -299,7 +299,7 @@ export default function AddPasswordDialog({ onClosed, onAdded, hidden }: AddPass
                                         className="w-full px-3 py-2 rounded-lg bg-input-background text-foreground border border-border text-sm outline-none focus:border-primary transition-colors"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        这个密钥将用于加密你的记忆点，需要与记忆点密钥保持一致。
+                                        这个密钥将用于加密你的密码回忆。
                                     </p>
                                 </div>
 
