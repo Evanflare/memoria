@@ -11,6 +11,12 @@
 它是一个开源、免费、注重隐私的密码回忆工具。库里没有密码，只有经过强加密的
 **提示词与规则**；当你需要时，用这些专属于你的记忆线索，把密码重新「回忆」出来。
 
+## 视频介绍
+
+<video src="doc/memoria-promo.mp4" controls preload="metadata" width="720" poster="https://i2.hdslb.com/bfs/archive/f4fe2d2bbec0b077bb256ba4263f07cd83c5402a.jpg"></video>
+
+▶ [在 Bilibili 观看完整视频](https://www.bilibili.com/video/BV1yqeg64EvN/)：*你的密码不该被存储｜开源密码回忆工具 memoria*（1920×1080，约 2 分 54 秒）
+
 ---
 
 ## 为什么不用密码管理器？
