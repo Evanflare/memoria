@@ -1,100 +1,187 @@
-<p align="center">
-  <a href="https://github.com/Evanflare/passwd-memory-points/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="images/Logo_dark.gif">
-      <img alt="Animated Memoria Logo" src="images/Logo_light.gif">
-    </picture>
-  </a>
-</p>
+# memoria · 密码回忆工具
 
-<h3 align="center">密码回忆、提示词与规则管理和加密的工具</h3>
-<br>
-<div align="center">
-<a href="./LICENSE.txt"><img src="https://img.shields.io/github/license/evanflare/memoria?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/>
-</a>
- <a href="https://github.com/evanflare/memoria/releases/latest"><img src="https://img.shields.io/github/v/release/evanflare/memoria?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/>
- </a>
-<!-- <a href="https://gitee.com/evanflare/memoria/releases/latest"><img src="https://img.shields.io/github/downloads/evanflare/memoria/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a> -->
-</div> 
-<br>
-<p align="center"><a href="https://github.com/Evanflare/passwd-memory-points/"><img src="images/memoria-homepage.png" alt="passwd memoty points Screenshot"/></a></p>
+> 音似 `memory`，意为「记忆」，取「回忆」的寓意。
 
-# memoria 免费的密码回忆构建、管理和迁移工具
+![License](https://img.shields.io/github/license/Evanflare/memoria?label=License&color=brightgreen)
+![Release](https://img.shields.io/github/v/release/Evanflare/memoria?label=Release&color=brightgreen)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android-blue)
 
->  memoria 音似'memory'意为'记忆'，取回忆的寓意。
+**memoria 帮助你想起密码，而不是替你保管密码。**
 
-memoria 是一个开源免费具有创新性的密码回忆工具。为解决密码遗忘、记忆混乱的问题，以第一性原理为引，开发了以回忆密码为核心的功能的 memoria 项目。
+它是一个开源、免费、注重隐私的密码回忆工具。库里没有密码，只有经过强加密的
+**提示词与规则**；当你需要时，用这些专属于你的记忆线索，把密码重新「回忆」出来。
 
-memoria 帮助我们回忆密码，而不存储密码。通过每个人独特的提示词规则来帮助用户建立自己的密码回忆簿。通过提示词组成个人专属回忆，并且能通过已有提示词与规则，快速构建新的密码回忆。
+---
 
-> 不存储而是帮助用户回忆，将密码的窥探阻断在大脑的记忆之外
+## 为什么不用密码管理器？
 
-memoria 采用强加密算法加密已有提示词簿明文以及密码回忆簿明文，又因为提示词与规则的私有、独特性使得存储的密码回忆几乎不能被用于暴力破解密码。
+市面上的密码管理器，核心都是「帮你**存**密码」——把密码（或它的密文）交给软件保管，
+安全性建立在「厂商不会看」之上。memoria 换了一个维度：
 
-## 下载安装
+|         | 传统密码管理器       | memoria                    |
+| ------- | -------------------- | -------------------------- |
+| 存储对象 | 密码密文             | **提示词与规则的密文**     |
+| 被拖库后 | 密码可能被还原、泄露 | **库中根本没有密码**       |
+| 信任基础 | 依赖厂商「不会看」   | **只依赖你自己的记忆**     |
 
-支持 Windows 与 Android 平台，安装包发布在 [github release页](https://github.com/Evanflare/passwd-memory-points/releases) 或者  [gitee release页](https://gitee.com/Evanflare/passwd_memory_points/releases) 中。
+> memoria 的库中不存储任何密码。即使密码文件被拿走，攻击者得到的也只是一堆
+> 提示词与规则的密文，无法直接还原出密码。
 
-[点击前往下载](https://gitee.com/Evanflare/passwd_memory_points/releases)
+---
 
-## 为什么用 memoria?
+## 工作原理
 
-memoria 结合的创新概念密码回忆，私有提示词规则，使得密码的安全性与密码回忆的便捷性大大提升。它是完全免费开源的，开源的，轻量级的，注重隐私，没有广告。不需要帐户就可以使用 memoria。
+memoria 使用一套「密码、规则提示词系统」来还原密码：
 
-memoria 对于拥有大量账号密码，经常忘记密码、害怕泄露密码，以及经常迁移密码或希望备份防止密码遗忘的人员、用户特别有用。它可以作为日常
+1. **提示词与规则**
+   提示词是你想起某个密码片段的引子，**每个提示词都是一个问题**。
+   提示词必须**天马行空**，不能一眼就看出某个取值区间。
+   常见的联想方式有音似、形似、意象、爱好等：
 
-memoria 的安全性取决于用户所建立的提示词、规则的私密度与复杂度。这种安全性是直观的，如果你需要足够的安全性，建立复杂提示词规则搭配 memoria 即可实现安全与便捷。
+   | 提示词  | 片段     | 方式 |
+   | ------- | -------- | ---- |
+   | 尾 8    | `&`      | 音似 |
+   | 笑      | `^v^`    | 形似 |
+   | cs 选手 | `s1mple` | 爱好 |
+   | 君子    | `lian`   | 意象 |
 
-## 特点
+2. **后缀串**
+   为每条密码回忆附加一段随机串，让不同账号的密码彼此不同。
 
-memoria 最大的特点就是“只存储提示词与规则，不存储密码”，安全性取决与用户所建立的规则。
+3. **自定义全局规则**
+   保持简单，却拥有非常多的变体，对每个密码片段生效。例如：
+   - **字母替换**：某些字符全局替换为某些字符
+   - **位置替换**：每个密码项，交换某两个位置的字符
+   - **默认前后缀**：每个密码项，添加默认的前缀或后缀
 
-1. 不直接存储密码，只有加密后的存储提示词与规则
-2. 可随意导入导出
-3. 一键更换加密密钥
-4. 支持 windows + android
-5. 本地存储无需联网功能
-6. 支持多套密码回忆库
+4. **密码回忆**
+   经过以上步骤，最终得到一条只有你看得懂的密码。
 
-建立一个自己私有的密码回忆提示词与规则系统，保存在线下介质中隐蔽保存，可以避免遗忘并且保证足够的安全性。
+### 一次完整的密码回忆
+
+```
+① 密文
+   ajs3dk4fhe2324ia（表示密文）
+
+② 用密钥 123 解密
+   提示词串「哭 上1 前瞻 后顾 wx」 ＋ 后缀串「a」
+
+③ 逐条解释并拼接
+   TVT!?=?=wxa        （哭→TVT，上1→!，前瞻→?=，后顾→=<，wx→wx）
+
+④ 套用自定义全局规则：最后一个字母变成字母表中的下一个字母（a→b）
+   TVT!?=?=wxb        ← 最终密码
+```
+
+别人拿到密文无从下手，只有你的提示词与规则，才能走完这条路。
+
+---
+
+## 功能特性
+
+- **提示词簿**：集中管理提示词与规则，支持搜索，可随时切换明文 / 密文显示
+- **密码回忆簿**：从提示词簿挑选组合，快速新建一条密码回忆
+- **导入 / 导出与合并**：随意导入导出，多文件合并时不会丢失任何密码项
+- **一键更换加密密钥**：随时重新加密整库，旧密钥即刻失效
+- **多套密码文件**：不同密钥、不同回忆簿，彼此完全隔离
+- **本地存储、无需联网**：数据始终在你本机，联网仅用于可选的版本更新
+- **无需账户、没有广告**
+- **Windows + Android 双端**：基于 React + Tauri，两端功能基本一致
+
+---
+
+## 安全性
+
+- 采用 **ChaCha20-Poly1305** 加密，提供机密性与完整性认证
+- **短密钥 + 默认字符填充**，兼顾便捷与强度
+- 存储格式为 `[12 字节 Nonce] + [密文] + [16 字节认证标签 (Tag)]`，支持 UTF-8 与 AAD
+- **可自行解密校验**，不用担心密文无法解密
+- 由于提示词与规则的私有性、独特性，存储的密码回忆几乎无法被暴力破解
+
+安全性最终取决于你所建立的提示词与规则的私密度与复杂度。这套系统是直观的：
+你投入多少心思，就得到多少安全。
+
+---
+
+## 截图
+
+![memoria 首页](images/memoria-homepage.png)
+
+| 提示词簿 | 密码回忆簿 | 配置信息 |
+| -------- | ---------- | -------- |
+| ![提示词簿](doc/image.png) | ![解密之后](doc/image-8.png) | ![配置信息](doc/image-10.png) |
+
+---
 
 ## 快速开始
 
 ### 1. 建立自己的提示词与规则
 
-**提示词**，当看到这个提示词的时候我们能想到的密码片段。通常可以借助音似、意象、事件、爱好、形似等等联想的方式来建立提示词。
-
-如：
-```shell
-尾8 -> &          #音似，留尾的8意思就是&
-笑 -> ^v^         #形似
-cs选手 -> s1mple  #爱好，最喜欢的cs选手
-君子 -> lian      #意向，莲花之君子者也
-```
-
-**规则**，不对应具体的密码片段，而是对某密码片段生效。通常的规则有首字母变换、顺序变换、新增后缀等。
-
-如：
-```shell
-caps ->   #取capslock意，后接密码片段的首字母大写
-不顺 ->   #不顺则反，将后接的密码片段字母顺序逆反
-鹅喷的 -> #append，后接密码片段追加一个自定义的后缀
-```
+用音似、形似、意象、爱好等方式，建立只有自己知道的映射。
 
 > 别让提示词与规则这么直白，一定要做只有自己知道的提示词与规则。
 
 ### 2. 存入提示词簿
 
-将提示词与规则存入提示词簿，memoria 会加密存储。
-
-![存入提示词簿](images/memoria-tipWordPage.png)
+将提示词与规则存入提示词簿，memoria 会加密保存。
 
 ### 3. 新建密码回忆
 
-在“密码回忆簿”页点击右下按钮新建，提示词部分可从提示词簿中选中，或自定义输入。
+在「密码回忆簿」页点击右下角按钮新建，提示词可从提示词簿中选中，也可以自定义输入。
 
-![新建密码回忆](images/memoria-newPasswdMemory.png)
+---
+
+## 下载安装
+
+支持 **Windows** 与 **Android**，安装包发布在 release 页：
+
+- Gitee Releases：<https://gitee.com/Evanflare/memoria/releases>
+- GitHub Releases：<https://github.com/Evanflare/memoria/releases>
+
+> 使用前建议先阅读 [使用文档](doc/使用文档.md)。
+
+---
 
 ## 软件文档
 
-请阅读 [memoria 使用文档](doc/使用文档.md)。
+- 使用文档：[doc/使用文档.md](doc/使用文档.md)
+- 官网：<https://evanflare.github.io/memoria_website/>
+
+---
+
+## 常见问题
+
+**Q：memoria 会不会忘记我的密码？**
+A：它本来就不存储密码。只要你记得提示词与规则，就能把密码回忆出来；
+反过来说，如果规则连你自己都忘了，任何人也无法帮你恢复。
+
+**Q：密码文件泄露了怎么办？**
+A：文件中只有加密后的提示词与规则，没有密码本身。即便被拖库，也很难被还原。
+当然，仍建议把提示词与规则设计得足够私密，并妥善保管密钥。
+
+**Q：需要联网吗？**
+A：不需要。所有数据都保存在本地；联网仅用于可选的版本更新，禁用联网权限也不影响使用。
+
+**Q：可以备份或迁移吗？**
+A：可以。支持导入、导出与合并密码文件；在 Windows 端可直接复制密码文件进行备份。
+
+---
+
+## 技术栈
+
+- 前端：React
+- 桌面 / 移动端：Tauri
+- 加密：ChaCha20-Poly1305
+
+由于 Windows 与 Android 共用同一套前端逻辑，两端功能基本相同。
+
+---
+
+## 开源与许可
+
+本项目基于 **GPL-3.0** 协议开源，完全免费，没有广告：
+
+- GitHub：<https://github.com/Evanflare/memoria>
+- Gitee：<https://gitee.com/Evanflare/memoria>
+
+欢迎提交 Issue 与 Pull Request，也欢迎点一个 Star 支持这个项目。
